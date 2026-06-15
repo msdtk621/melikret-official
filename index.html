@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ============================================================
+       メリクレット | melikret  OFFICIAL WEBSITE
+       札幌発・男女混合4ピース オルタナティブロックバンド
+       ============================================================ -->
+
+  <title>メリクレット | melikret OFFICIAL WEBSITE</title>
+  <meta name="description" content="札幌発・男女混合4ピース オルタナティブロックバンド「メリクレット」公式サイト。涙伝う日常に、奏でる藍の逆さ傘を。" />
+
+  <!-- OGP（SNSシェア時の表示） -->
+  <meta property="og:title" content="メリクレット | melikret OFFICIAL WEBSITE" />
+  <meta property="og:description" content="涙伝う日常に、奏でる藍の逆さ傘を。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="images/hero.jpg" />
+
+  <!-- ファビコン（マスコット「メリーちゃん」） -->
+  <link rel="icon" href="images/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16.png" />
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+
+  <!-- ローディング画面がCSS読み込み前から画面を覆うための最小スタイル -->
+  <style>.loader{position:fixed;inset:0;z-index:1000;background:#fff;display:flex;align-items:center;justify-content:center}</style>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+
+  <!-- ローディング画面（メリクレットのロゴ＋水の波紋。読み込み後にフェードアウト） -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader__stage">
+      <img class="loader__logo" src="images/logo_trim.png" alt="メリクレット" />
+      <span class="loader__ripple"></span>
+      <span class="loader__ripple"></span>
+      <span class="loader__ripple"></span>
+    </div>
+  </div>
+
+  <!-- 水たまりの波紋エフェクト（JSで波紋を生成。装飾） -->
+  <div class="ripple-layer" id="ripple" aria-hidden="true"></div>
+
+  <!-- ============================== ヘッダー / ナビ ============================== -->
+  <header class="header" id="header">
+    <a href="#top" class="header__logo" aria-label="メリクレット トップへ">
+      <img src="images/logo_trim.png" alt="メリクレット" class="header__logo-img" />
+    </a>
+
+    <nav class="gnav" id="gnav">
+      <ul class="gnav__list">
+        <li><a href="#news">NEWS</a></li>
+        <li><a href="#live">LIVE</a></li>
+        <li><a href="#discography">DISCOGRAPHY</a></li>
+        <li><a href="#profile">PROFILE</a></li>
+        <li><a href="#member">MEMBER</a></li>
+        <li><a href="#movie">MOVIE</a></li>
+        <li><a href="#contact">CONTACT</a></li>
+      </ul>
+      <ul class="gnav__sns">
+        <li><a href="https://x.com/melikret" target="_blank" rel="noopener" aria-label="X (Twitter) @melikret">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a></li>
+        <li><a href="https://www.instagram.com/melikret" target="_blank" rel="noopener" aria-label="Instagram @melikret">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a></li>
+        <li><a href="https://www.youtube.com/@melikret" target="_blank" rel="noopener" aria-label="YouTube @melikret">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </a></li>
+        <li><a href="https://www.tiktok.com/@melikret" target="_blank" rel="noopener" aria-label="TikTok @melikret">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+        </a></li>
+      </ul>
+    </nav>
+
+    <button class="hamburger" id="hamburger" aria-label="メニューを開く" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- ============================== ヒーロー（TOP・メインアー写のみ／文字は載せない） ============================== -->
+  <section class="hero" id="top">
+    <h1 class="sr-only">メリクレット | melikret OFFICIAL WEBSITE</h1>
+    <!-- ▼ メインビジュアル。差し替えるときは images/hero.jpg を入れ替え ▼ -->
+    <img class="hero__img" src="images/hero.jpg" alt="メリクレット メンバー" fetchpriority="high" />
+    <div class="hero__overlay" aria-hidden="true"></div>
+
+    <a href="#concept" class="hero__scroll" aria-label="下へスクロール">
+      <span class="hero__scroll-drop" aria-hidden="true"></span>
+      <span class="hero__scroll-pool" aria-hidden="true"></span>
+    </a>
+  </section>
+
+  <main>
+
+    <!-- ============================== コンセプト（メインビジュアルの直後・白地） ============================== -->
+    <section class="concept" id="concept">
+      <img class="concept__logo" src="images/logo_text_trim.png" alt="メリクレット" />
+      <p class="concept__text">涙伝う日常に、奏でる藍の逆さ傘を。</p>
+      <p class="concept__sub">melikret &mdash; alternative rock from Sapporo</p>
+    </section>
+
+    <!-- ============================== NEWS ============================== -->
+    <section class="section" id="news">
+      <div class="section__head">
+        <h2 class="section__title">NEWS</h2>
+        <p class="section__title-jp">最新情報</p>
+      </div>
+
+      <!-- ▼▼ ニュースはこの <li> を複製して増減できます ▼▼ -->
+      <ul class="news">
+        <li class="news__item">
+          <time class="news__date" datetime="2026-05-13">2026.05.13</time>
+          <span class="news__cat">RELEASE</span>
+          <p class="news__text">18th digital single「ネガ・リセット！」を各種配信サービスにてリリースしました。</p>
+        </li>
+        <li class="news__item">
+          <time class="news__date" datetime="2026-02-04">2026.02.04</time>
+          <span class="news__cat">RELEASE</span>
+          <p class="news__text">1st mini album「1ヨクトの眠り姫」(全8曲) をリリースしました。</p>
+        </li>
+        <li class="news__item">
+          <time class="news__date" datetime="2026-01-01">2026.01.01</time>
+          <span class="news__cat">LIVE</span>
+          <p class="news__text">「メリクレット 2nd Tour 2026」全国ツアー開催決定。チケット一般発売中。</p>
+        </li>
+        <li class="news__item">
+          <time class="news__date" datetime="2025-12-17">2025.12.17</time>
+          <span class="news__cat">RELEASE</span>
+          <p class="news__text">「イヴと凍花の国」(札幌ホワイトイルミネーション コラボ) を配信開始しました。</p>
+        </li>
+      </ul>
+      <!-- ▲▲ ニュースここまで ▲▲ -->
+    </section>
+
+    <!-- ============================== LIVE ============================== -->
+    <section class="section section--tint" id="live">
+      <div class="section__head">
+        <h2 class="section__title">LIVE</h2>
+        <p class="section__title-jp">ライブ情報</p>
+      </div>
+
+      <!-- ▼▼ ライブ（出典: sonicon.jp/artists/melikret）。<li> を複製して増減できます ▼▼ -->
+      <ul class="live">
+        <li class="live__item">
+          <div class="live__date"><span class="live__date-day">06.27</span><span class="live__date-year">2026 / SAT</span></div>
+          <div class="live__body">
+            <h3 class="live__name">MiMiNOKOROCK FES JAPAN in 吉祥寺 2026</h3>
+            <p class="live__place">吉祥寺CLUB SEATA &mdash; 東京</p>
+          </div>
+          <span class="live__status">販売中</span>
+        </li>
+        <li class="live__item">
+          <div class="live__date"><span class="live__date-day">07.04</span><span class="live__date-year">2026 / SAT</span></div>
+          <div class="live__body">
+            <h3 class="live__name">見放題大阪2026</h3>
+            <p class="live__place">BIGCAT &mdash; 大阪</p>
+          </div>
+          <span class="live__status">販売中</span>
+        </li>
+        <li class="live__item">
+          <div class="live__date"><span class="live__date-day">07.05</span><span class="live__date-year">2026 / SUN</span></div>
+          <div class="live__body">
+            <h3 class="live__name">見放題名古屋2026</h3>
+            <p class="live__place">ダイアモンドホール &mdash; 愛知</p>
+          </div>
+          <span class="live__status">販売中</span>
+        </li>
+        <li class="live__item">
+          <div class="live__date"><span class="live__date-day">07.19</span><span class="live__date-year">2026 / SUN</span></div>
+          <div class="live__body">
+            <h3 class="live__name">JOIN ALIVE 2026</h3>
+            <p class="live__place">いわみざわ公園 &mdash; 北海道</p>
+          </div>
+          <span class="live__status live__status--soon">出演</span>
+        </li>
+        <li class="live__item">
+          <div class="live__date"><span class="live__date-day">07.24</span><span class="live__date-year">2026 / FRI</span></div>
+          <div class="live__body">
+            <h3 class="live__name">Parallel Echoes vol.1 (Supported by Date fm SOUND GENIC)</h3>
+            <p class="live__place">LIVE HOUSE enn 2nd</p>
+          </div>
+          <span class="live__status">販売中</span>
+        </li>
+        <li class="live__item">
+          <div class="live__date"><span class="live__date-day">08.01</span><span class="live__date-year">2026 / SAT</span></div>
+          <div class="live__body">
+            <h3 class="live__name">ORCALAND TOUR 2026「マジで魔法をかけにいく」</h3>
+            <p class="live__place">札幌 近松 &mdash; 北海道</p>
+          </div>
+          <span class="live__status">販売中</span>
+        </li>
+        <li class="live__item">
+          <div class="live__date"><span class="live__date-day">08.02</span><span class="live__date-year">2026 / SUN</span></div>
+          <div class="live__body">
+            <h3 class="live__name">明くる夜の羊 2026 RELEASE TOUR</h3>
+            <p class="live__place">札幌 近松 &mdash; 北海道</p>
+          </div>
+          <span class="live__status">販売中</span>
+        </li>
+        <li class="live__item">
+          <div class="live__date"><span class="live__date-day">09.22</span><span class="live__date-year">2026 / TUE</span></div>
+          <div class="live__body">
+            <h3 class="live__name">TOKYO CALLING 2026</h3>
+            <p class="live__place">下北沢シャングリラ &mdash; 東京</p>
+          </div>
+          <span class="live__status">販売中</span>
+        </li>
+        <li class="live__item">
+          <div class="live__date"><span class="live__date-day">09.26</span><span class="live__date-year">2026 / SAT</span></div>
+          <div class="live__body">
+            <h3 class="live__name">メリクレット 2nd Tour 2026</h3>
+            <p class="live__place">PLANT</p>
+          </div>
+          <span class="live__status">販売中</span>
+        </li>
+        <li class="live__item">
+          <div class="live__date"><span class="live__date-day">10.10</span><span class="live__date-year">2026 / SAT</span></div>
+          <div class="live__body">
+            <h3 class="live__name">メリクレット 2nd Tour 2026</h3>
+            <p class="live__place">PLANT</p>
+          </div>
+          <span class="live__status">販売中</span>
+        </li>
+        <li class="live__item">
+          <div class="live__date"><span class="live__date-day">10.25</span><span class="live__date-year">2026 / SUN</span></div>
+          <div class="live__body">
+            <h3 class="live__name">メリクレット 2nd Tour 2026</h3>
+            <p class="live__place">LIVE HOUSE enn 3rd</p>
+          </div>
+          <span class="live__status">販売中</span>
+        </li>
+        <li class="live__item">
+          <div class="live__date"><span class="live__date-day">11.03</span><span class="live__date-year">2026 / TUE</span></div>
+          <div class="live__body">
+            <h3 class="live__name">メリクレット 2nd Tour 2026</h3>
+            <p class="live__place">高松 sound space RIZIN' &mdash; 香川</p>
+          </div>
+          <span class="live__status">販売中</span>
+        </li>
+        <li class="live__item">
+          <div class="live__date"><span class="live__date-day">11.08</span><span class="live__date-year">2026 / SUN</span></div>
+          <div class="live__body">
+            <h3 class="live__name">メリクレット 2nd Tour 2026</h3>
+            <p class="live__place">LIVE SQUARE 2nd LINE</p>
+          </div>
+          <span class="live__status">販売中</span>
+        </li>
+        <li class="live__item">
+          <div class="live__date"><span class="live__date-day">11.23</span><span class="live__date-year">2026 / MON</span></div>
+          <div class="live__body">
+            <h3 class="live__name">メリクレット 2nd Tour 2026</h3>
+            <p class="live__place">福岡 LIVE HOUSE OP's &mdash; 福岡</p>
+          </div>
+          <span class="live__status">販売中</span>
+        </li>
+        <li class="live__item">
+          <div class="live__date"><span class="live__date-day">12.06</span><span class="live__date-year">2026 / SUN</span></div>
+          <div class="live__body">
+            <h3 class="live__name">メリクレット 2nd Tour 2026</h3>
+            <p class="live__place">Veats Shibuya &mdash; 東京</p>
+          </div>
+          <span class="live__status">販売中</span>
+        </li>
+      </ul>
+      <div class="live__more">
+        <a class="btn-pill" href="https://sonicon.jp/artists/melikret" target="_blank" rel="noopener">ライブ情報・チケットの詳細 &rarr;</a>
+      </div>
+      <!-- ▲▲ ライブここまで ▲▲ -->
+    </section>
+
+    <!-- ============================== 世界観イラスト（キービジュアル） ============================== -->
+    <section class="keyvisual" aria-label="メリクレットの世界観">
+      <img class="keyvisual__img" src="images/illust.jpg" alt="メリクレットの世界観イラスト（喫茶 COFFEE melikret）" loading="lazy" />
+      <div class="keyvisual__veil" aria-hidden="true"></div>
+      <p class="keyvisual__copy">
+        <span class="keyvisual__copy-jp">藍色の街の片隅、雨やどりの喫茶店で。</span>
+        <span class="keyvisual__copy-en">COFFEE &amp; melikret</span>
+      </p>
+    </section>
+
+    <!-- ============================== PROFILE ============================== -->
+    <section class="section" id="profile">
+      <div class="section__head">
+        <h2 class="section__title">PROFILE</h2>
+        <p class="section__title-jp">プロフィール</p>
+      </div>
+
+      <div class="profile">
+        <div class="profile__photo">
+          <!-- ▼ サブアー写。差し替えは images/profile.jpg を入れ替え ▼ -->
+          <img src="images/profile.jpg" alt="メリクレット プロフィール写真" loading="lazy" />
+        </div>
+        <div class="profile__text">
+          <p class="profile__lead">涙伝う日常に、奏でる藍の逆さ傘を。</p>
+          <p>
+            メリクレット（melikret）は、北海道・札幌を拠点に活動する男女混合4ピース オルタナティブロックバンド。
+            2019年9月、大学の軽音楽サークル内で結成。
+          </p>
+          <p>
+            厭世的でありながら情景が立ちのぼる詩、ジャンルの垣根を越えた幅広い楽曲群、そして力強くも儚いボーカル。
+            それらが溶け合い、独特の世界観を描き出す。
+          </p>
+          <p>
+            2026年2月に1st mini album「1ヨクトの眠り姫」をリリース。ライブ活動やSNSでの発信も話題を呼び、
+            全国各地のフェス・ツアーへと活動の場を広げている。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== MEMBER ============================== -->
+    <section class="section section--tint" id="member">
+      <div class="section__head">
+        <h2 class="section__title">MEMBER</h2>
+        <p class="section__title-jp">メンバー</p>
+      </div>
+
+      <!-- ▼▼ メンバー写真は images/member-*.jpg を差し替え ▼▼ -->
+      <ul class="member">
+        <li class="member__item">
+          <div class="member__photo"><img src="images/member-tipe.jpg" alt="ちぺ" loading="lazy" /></div>
+          <p class="member__name">ちぺ</p>
+          <p class="member__part">Vocal &amp; Guitar</p>
+        </li>
+        <li class="member__item">
+          <div class="member__photo"><img src="images/member-renia.jpg" alt="レニア" loading="lazy" /></div>
+          <p class="member__name">レニア</p>
+          <p class="member__part">Guitar</p>
+        </li>
+        <li class="member__item">
+          <div class="member__photo"><img src="images/member-toki.jpg" alt="斗輝" loading="lazy" /></div>
+          <p class="member__name">斗輝</p>
+          <p class="member__part">Bass</p>
+        </li>
+      </ul>
+      <!-- ▲▲ メンバーここまで ▲▲ -->
+    </section>
+
+    <!-- ============================== DISCOGRAPHY ============================== -->
+    <section class="section" id="discography">
+      <div class="section__head">
+        <h2 class="section__title">DISCOGRAPHY</h2>
+        <p class="section__title-jp">作品</p>
+      </div>
+
+      <!-- ▼▼ ジャケット画像は Apple Music の公式アートワークを参照しています ▼▼ -->
+      <ul class="disco">
+        <li class="disco__item">
+          <a class="disco__jacket" href="https://music.apple.com/jp/album/1870496886" target="_blank" rel="noopener">
+            <img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/5e/34/64/5e346450-2a16-5d37-e15a-48501cdda069/ticket.vyzqjdod.jpg/600x600bb.jpg" alt="ネガ・リセット！ ジャケット" loading="lazy" />
+          </a>
+          <div class="disco__info">
+            <p class="disco__date">2026.05.13</p>
+            <h3 class="disco__title">ネガ・リセット！</h3>
+            <p class="disco__type">Digital Single</p>
+            <a class="disco__link" href="https://melikret.lnk.to/melikret" target="_blank" rel="noopener">LISTEN &rarr;</a>
+          </div>
+        </li>
+        <li class="disco__item">
+          <a class="disco__jacket" href="https://melikret.lnk.to/1stminialbum" target="_blank" rel="noopener">
+            <img src="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/36/ad/d6/36add669-e470-3213-d933-1e7a3be55e6f/bigup14304664.jpg/600x600bb.jpg" alt="1ヨクトの眠り姫 ジャケット" loading="lazy" />
+          </a>
+          <div class="disco__info">
+            <p class="disco__date">2026.02.04</p>
+            <h3 class="disco__title">1ヨクトの眠り姫</h3>
+            <p class="disco__type">1st mini album</p>
+            <a class="disco__link" href="https://melikret.lnk.to/1stminialbum" target="_blank" rel="noopener">LISTEN &rarr;</a>
+          </div>
+        </li>
+        <li class="disco__item">
+          <a class="disco__jacket" href="https://music.apple.com/jp/album/1856778626" target="_blank" rel="noopener">
+            <img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e7/c1/fd/e7c1fd57-3838-cf1d-81d5-75153a11c1ac/bigup14254698.jpg/600x600bb.jpg" alt="イヴと凍花の国 ジャケット" loading="lazy" />
+          </a>
+          <div class="disco__info">
+            <p class="disco__date">2025.12.17</p>
+            <h3 class="disco__title">イヴと凍花の国</h3>
+            <p class="disco__type">Digital Single</p>
+            <a class="disco__link" href="https://melikret.lnk.to/melikret" target="_blank" rel="noopener">LISTEN &rarr;</a>
+          </div>
+        </li>
+        <li class="disco__item">
+          <a class="disco__jacket" href="https://music.apple.com/jp/album/1845010230" target="_blank" rel="noopener">
+            <img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/69/58/e9/6958e98d-4c9d-2b03-f87a-1ceb48baf6e3/bigup14208777.jpg/600x600bb.jpg" alt="偽物 ジャケット" loading="lazy" />
+          </a>
+          <div class="disco__info">
+            <p class="disco__date">2025.10.29</p>
+            <h3 class="disco__title">偽物</h3>
+            <p class="disco__type">Digital Single</p>
+            <a class="disco__link" href="https://melikret.lnk.to/melikret" target="_blank" rel="noopener">LISTEN &rarr;</a>
+          </div>
+        </li>
+        <li class="disco__item">
+          <a class="disco__jacket" href="https://music.apple.com/jp/album/1826462811" target="_blank" rel="noopener">
+            <img src="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/0e/3f/0d/0e3f0d92-debe-65d6-456b-ba5bdfc3f55e/bigup14118823.jpg/600x600bb.jpg" alt="透水 ジャケット" loading="lazy" />
+          </a>
+          <div class="disco__info">
+            <p class="disco__date">2025.07.30</p>
+            <h3 class="disco__title">透水</h3>
+            <p class="disco__type">Digital Single</p>
+            <a class="disco__link" href="https://melikret.lnk.to/melikret" target="_blank" rel="noopener">LISTEN &rarr;</a>
+          </div>
+        </li>
+        <li class="disco__item">
+          <a class="disco__jacket" href="https://music.apple.com/jp/album/1819423618" target="_blank" rel="noopener">
+            <img src="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/3d/33/ba/3d33bab6-7f7c-b3cb-ff23-4ef9851f6b26/bigup14092476.jpg/600x600bb.jpg" alt="メリーバッドエンド ジャケット" loading="lazy" />
+          </a>
+          <div class="disco__info">
+            <p class="disco__date">2025.06.25</p>
+            <h3 class="disco__title">メリーバッドエンド</h3>
+            <p class="disco__type">Digital Single</p>
+            <a class="disco__link" href="https://melikret.lnk.to/melikret" target="_blank" rel="noopener">LISTEN &rarr;</a>
+          </div>
+        </li>
+      </ul>
+      <div class="disco__more">
+        <a class="btn-pill" href="https://melikret.lnk.to/melikret" target="_blank" rel="noopener">すべての作品を配信で聴く &rarr;</a>
+      </div>
+      <!-- ▲▲ ディスコグラフィーここまで ▲▲ -->
+    </section>
+
+    <!-- ============================== MOVIE ============================== -->
+    <section class="section section--tint" id="movie">
+      <div class="section__head">
+        <h2 class="section__title">MOVIE</h2>
+        <p class="section__title-jp">映像</p>
+      </div>
+
+      <!-- ▼▼ YouTube (@melikret) のMV。別の動画にするには embed の動画IDを差し替え ▼▼ -->
+      <div class="movie">
+        <div class="movie__frame">
+          <iframe
+            src="https://www.youtube-nocookie.com/embed/U1-YQfccF8Q"
+            title="ネガ・リセット！ - メリクレット (Music Video)"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen></iframe>
+        </div>
+        <div class="movie__frame">
+          <iframe
+            src="https://www.youtube-nocookie.com/embed/0q0IOK8r7h8"
+            title="セミロング - メリクレット (Music Video)"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen></iframe>
+        </div>
+      </div>
+      <div class="movie__more">
+        <a class="btn-pill" href="https://www.youtube.com/@melikret" target="_blank" rel="noopener">YouTubeチャンネルを見る &rarr;</a>
+      </div>
+      <!-- ▲▲ 映像ここまで ▲▲ -->
+    </section>
+
+    <!-- ============================== CONTACT ============================== -->
+    <section class="section" id="contact">
+      <div class="section__head">
+        <h2 class="section__title">CONTACT</h2>
+        <p class="section__title-jp">お問い合わせ</p>
+      </div>
+
+      <div class="contact">
+        <p class="contact__lead">
+          ライブ出演のご依頼・取材・各種お問い合わせは、下記よりご連絡ください。
+        </p>
+        <a class="contact__mail" href="mailto:melikret.official@gmail.com">melikret.official@gmail.com</a>
+
+        <ul class="contact__sns">
+          <li><a href="https://x.com/melikret" target="_blank" rel="noopener" aria-label="X (Twitter) @melikret">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            <span>X</span>
+          </a></li>
+          <li><a href="https://www.instagram.com/melikret" target="_blank" rel="noopener" aria-label="Instagram @melikret">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+            <span>Instagram</span>
+          </a></li>
+          <li><a href="https://www.youtube.com/@melikret" target="_blank" rel="noopener" aria-label="YouTube @melikret">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            <span>YouTube</span>
+          </a></li>
+          <li><a href="https://www.tiktok.com/@melikret" target="_blank" rel="noopener" aria-label="TikTok @melikret">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+            <span>TikTok</span>
+          </a></li>
+          <li><a href="https://melikret.lnk.to/melikret" target="_blank" rel="noopener" aria-label="各種配信・リンク">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.9 12a3.6 3.6 0 013.6-3.6h3.3V6.6H7.5A5.4 5.4 0 002.1 12a5.4 5.4 0 005.4 5.4h3.3v-1.8H7.5A3.6 3.6 0 013.9 12zm4.5.9h7.2v-1.8H8.4v1.8zM16.5 6.6h-3.3v1.8h3.3a3.6 3.6 0 010 7.2h-3.3v1.8h3.3A5.4 5.4 0 0021.9 12a5.4 5.4 0 00-5.4-5.4z"/></svg>
+            <span>LINKS</span>
+          </a></li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================== フッター ============================== -->
+  <footer class="footer">
+    <a href="#top" class="footer__logo" aria-label="メリクレット">
+      <img src="images/logo_trim.png" alt="メリクレット" class="footer__logo-img" />
+    </a>
+    <p class="footer__copy">&copy; melikret. All Rights Reserved.</p>
+  </footer>
+
+  <!-- ページ先頭へ戻るボタン（右下・スクロールで出現） -->
+  <button class="to-top" id="toTop" aria-label="ページの先頭へ戻る">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 19V6" />
+      <path d="M6 12l6-6 6 6" />
+    </svg>
+  </button>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

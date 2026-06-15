@@ -1,0 +1,12 @@
+# 元画像（大容量の素材データ。Web表示には images/ の最適化版を使用）
+/image/
+
+# 配信用にローカル生成したが未使用のファイル
+/images/illust.png
+
+# OS / エディタ
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
