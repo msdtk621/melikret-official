@@ -30,7 +30,7 @@
 
   <!-- ローディング画面がCSS読み込み前から画面を覆うための最小スタイル -->
   <style>.loader{position:fixed;inset:0;z-index:1000;background:#fff;display:flex;align-items:center;justify-content:center}</style>
-  <link rel="stylesheet" href="css/style.css?v=20260629a" />
+  <link rel="stylesheet" href="css/style.css?v=20260629b" />
 </head>
 
 <body>
@@ -380,6 +380,9 @@
   <!-- ページ先頭へ戻るボタン（右下・スクロールで出現） -->
   <button class="to-top" id="toTop" aria-label="ページの先頭へ戻る">
     <img src="images/メリーちゃん.png" alt="" aria-hidden="true" />
+    <svg class="to-top__arrow" viewBox="0 0 16 28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M8 24V4" /><path d="M2 10l6-6 6 6" />
+    </svg>
   </button>
 
   <script src="js/main.js"></script>

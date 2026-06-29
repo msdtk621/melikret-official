@@ -370,26 +370,34 @@ ul { list-style: none; }
   right: clamp(16px, 3vw, 34px);
   bottom: clamp(16px, 3vw, 34px);
   z-index: 90;
-  width: 50px; height: 50px;
+  width: auto; height: auto;
   border: none;
-  border-radius: 50%;
-  background: linear-gradient(150deg, var(--color-main), var(--color-sub));
-  color: #fff;
+  background: transparent;
   cursor: pointer;
-  display: grid;
-  place-items: center;
-  box-shadow: 0 8px 22px rgba(58, 101, 103, 0.32);
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 5px;
+  padding: 0;
+  filter: drop-shadow(0 3px 10px rgba(32, 49, 58, 0.30));
   opacity: 0;
   visibility: hidden;
   transform: translateY(14px);
-  transition: opacity 0.35s var(--ease), transform 0.35s var(--ease), visibility 0.35s, box-shadow 0.35s;
+  transition: opacity 0.35s var(--ease), transform 0.35s var(--ease), visibility 0.35s, filter 0.35s;
 }
 .to-top.is-visible { opacity: 1; visibility: visible; transform: none; }
 .to-top:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(58, 101, 103, 0.45);
+  transform: translateY(-4px);
+  filter: drop-shadow(0 6px 18px rgba(32, 49, 58, 0.42));
 }
-.to-top img { width: 36px; height: 36px; object-fit: contain; }
+.to-top img { width: 64px; height: 64px; object-fit: contain; }
+.to-top__arrow {
+  width: 16px;
+  height: 28px;
+  color: var(--color-sub-deep);
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
 
 /* ============================================================
    セクション共通
