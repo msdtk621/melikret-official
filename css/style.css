@@ -389,7 +389,7 @@ ul { list-style: none; }
   transform: translateY(-3px);
   box-shadow: 0 12px 30px rgba(58, 101, 103, 0.45);
 }
-.to-top svg { width: 20px; height: 20px; }
+.to-top img { width: 36px; height: 36px; object-fit: contain; }
 
 /* ============================================================
    セクション共通
@@ -1108,6 +1108,89 @@ ul { list-style: none; }
 }
 
 /* ============================================================
+   ナビ：外部リンク仕切り・SHOP/BLOG
+   ============================================================ */
+.gnav__divider {
+  width: 1px;
+  height: 18px;
+  background: var(--color-line);
+  margin: 0 4px;
+  align-self: center;
+}
+.gnav__list .gnav__external {
+  color: var(--color-sub-deep);
+  font-weight: 600;
+  font-size: 0.88rem;
+  letter-spacing: 0.18em;
+}
+.gnav__list .gnav__external:hover { color: var(--color-sub); }
+
+/* ============================================================
+   ツアーバナー
+   ============================================================ */
+.tour-banner {
+  display: grid;
+  min-height: clamp(300px, 52vw, 640px);
+  overflow: hidden;
+  background: var(--color-ink);
+  text-decoration: none;
+  color: #fff;
+}
+.tour-banner > * { grid-area: 1 / 1; }
+.tour-banner__img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.6s var(--ease);
+}
+.tour-banner:hover .tour-banner__img { transform: scale(1.03); }
+.tour-banner__overlay {
+  background: linear-gradient(to bottom,
+    rgba(10, 20, 28, 0.38) 0%,
+    rgba(10, 20, 28, 0.72) 100%);
+}
+.tour-banner__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+}
+.tour-banner__label {
+  font-family: var(--font-en);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.55em;
+  color: var(--color-main);
+  margin-bottom: 18px;
+}
+.tour-banner__title {
+  font-family: var(--font-mincho);
+  font-size: clamp(2rem, 6.5vw, 4.2rem);
+  font-weight: 700;
+  line-height: 1.35;
+  margin-bottom: 36px;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+}
+.tour-banner__btn {
+  display: inline-block;
+  padding: 13px 38px;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  font-family: var(--font-en);
+  font-size: 0.9rem;
+  letter-spacing: 0.14em;
+  color: #fff;
+  transition: background 0.3s, border-color 0.3s, color 0.3s;
+}
+.tour-banner:hover .tour-banner__btn {
+  background: #fff;
+  border-color: #fff;
+  color: var(--color-ink);
+}
+
+/* ============================================================
    レスポンシブ
    ============================================================ */
 @media (max-width: 900px) {
@@ -1132,6 +1215,7 @@ ul { list-style: none; }
   .gnav.is-open { opacity: 1; visibility: visible; }
   .gnav__list { flex-direction: column; align-items: center; gap: 22px; }
   .gnav__list a { font-size: 1.3rem; letter-spacing: 0.2em; }
+  .gnav__divider { width: 40px; height: 1px; margin: 4px 0; }
   .gnav__sns { gap: 18px; }
 
   .profile { grid-template-columns: 1fr; gap: 32px; }
@@ -1194,6 +1278,11 @@ ul { list-style: none; }
   .disco__title { font-size: 0.88rem; }
   .disco__type  { font-size: 0.75rem; }
   .disco__link  { font-size: 0.72rem; margin-top: 8px; padding: 5px 12px; }
+
+  /* ツアーバナー: スマホは縦長に */
+  .tour-banner { min-height: clamp(260px, 72vw, 420px); }
+  .tour-banner__title { font-size: clamp(1.6rem, 8vw, 2.4rem); margin-bottom: 28px; }
+  .tour-banner__btn { padding: 11px 28px; font-size: 0.82rem; }
 
   /* hero: スマホで横幅フルに両端まで収まるよう自然なサイズで表示 */
   .hero {
