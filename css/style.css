@@ -391,13 +391,6 @@ ul { list-style: none; }
   filter: drop-shadow(0 6px 18px rgba(32, 49, 58, 0.42));
 }
 .to-top img { width: 64px; height: 64px; object-fit: contain; }
-.to-top__arrow {
-  width: 16px;
-  height: 28px;
-  color: var(--color-sub-deep);
-  margin-bottom: 10px;
-  flex-shrink: 0;
-}
 
 /* ============================================================
    セクション共通
@@ -1138,7 +1131,8 @@ ul { list-style: none; }
    ============================================================ */
 .tour-banner {
   display: grid;
-  min-height: clamp(300px, 52vw, 640px);
+  min-height: clamp(220px, 38vw, 460px);
+  max-height: 80vh;
   overflow: hidden;
   background: var(--color-ink);
   text-decoration: none;
@@ -1288,7 +1282,7 @@ ul { list-style: none; }
   .disco__link  { font-size: 0.72rem; margin-top: 8px; padding: 5px 12px; }
 
   /* ツアーバナー: スマホは縦長に */
-  .tour-banner { min-height: clamp(260px, 72vw, 420px); }
+  .tour-banner { min-height: clamp(180px, 55vw, 320px); }
   .tour-banner__title { font-size: clamp(1.6rem, 8vw, 2.4rem); margin-bottom: 28px; }
   .tour-banner__btn { padding: 11px 28px; font-size: 0.82rem; }
 
