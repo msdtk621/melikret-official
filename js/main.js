@@ -57,8 +57,9 @@ document.addEventListener("DOMContentLoaded", () => {
   );
   revealTargets.forEach((el) => el.classList.add("reveal"));
 
+  let io = null;
   if ("IntersectionObserver" in window) {
-    const io = new IntersectionObserver(
+    io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
@@ -84,6 +85,198 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     revealTargets.forEach((el) => el.classList.add("is-visible"));
   }
+
+  /* ---------- API: ニュース & ライブ読み込み ---------- */
+  const observeEl = (el) => {
+    if (io) { io.observe(el); }
+    else { el.classList.add("is-visible"); }
+  };
+
+  // ── ニュース ──────────────────────────────────────────
+  (async () => {
+    const list = document.getElementById("newsList");
+    if (!list) return;
+    try {
+      const res = await fetch("api/news.php");
+      if (!res.ok) throw new Error(res.status);
+      const items = await res.json();
+      if (!items.length) {
+        list.innerHTML = '<li class="news__loading">ニュースはありません。</li>';
+        return;
+      }
+      list.innerHTML = items.map(n => `
+        <li class="news__item reveal">
+          <time class="news__date" datetime="${n.date}">${n.date_display}</time>
+          <span class="news__cat">${n.category}</span>
+          <p class="news__text">${n.text}</p>
+        </li>
+      `).join("");
+      list.querySelectorAll(".news__item").forEach((el, i) => {
+        el.dataset.delay = (i % 8) * 90;
+        observeEl(el);
+      });
+    } catch {
+      list.innerHTML = '<li class="news__loading">読込に失敗しました。</li>';
+    }
+  })();
+
+  // ── ライブ（取得後にページネーション起動） ──────────────
+  (async () => {
+    const list = document.getElementById("liveList");
+    const pagination = document.getElementById("livePagination");
+    if (!list) return;
+    try {
+      const res = await fetch("api/live.php");
+      if (!res.ok) throw new Error(res.status);
+      const items = await res.json();
+      if (!items.length) {
+        list.innerHTML = '<li class="news__loading">ライブ情報はありません。</li>';
+        return;
+      }
+
+      const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+      const nl2br = (s) => esc(s).replace(/\n/g, "<br>");
+
+      const byId = {};
+      items.forEach((it) => { byId[it.id] = it; });
+
+      list.innerHTML = items.map(item => {
+        const title = item.has_detail
+          ? `<button type="button" class="live__name-btn" data-detail="${item.id}">${esc(item.event_name)}</button>`
+          : esc(item.event_name);
+        return `
+        <li class="live__item reveal">
+          <div class="live__date">
+            <span class="live__date-day">${esc(item.day_month)}</span>
+            <span class="live__date-year">${esc(item.year_dow)}</span>
+          </div>
+          <div class="live__body">
+            <h3 class="live__name">${title}</h3>
+            <p class="live__place">${esc(item.venue)}${item.city ? ` &mdash; ${esc(item.city)}` : ""}</p>
+          </div>
+          ${item.has_detail ? `<div class="live__actions"><button type="button" class="live__detail-btn" data-detail="${item.id}">詳細 →</button></div>` : ""}
+        </li>`;
+      }).join("");
+
+      const liveItems = Array.from(list.querySelectorAll(".live__item"));
+      liveItems.forEach((el, i) => {
+        el.dataset.delay = (i % 8) * 90;
+        observeEl(el);
+      });
+
+      /* ---- 詳細モーダル ---- */
+      let modal = document.getElementById("liveModal");
+      if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "liveModal";
+        modal.className = "live-modal";
+        modal.setAttribute("aria-hidden", "true");
+        modal.innerHTML = `
+          <div class="live-modal__overlay" data-close></div>
+          <div class="live-modal__panel" role="dialog" aria-modal="true" aria-label="ライブ詳細">
+            <button class="live-modal__close" data-close aria-label="閉じる">×</button>
+            <div class="live-modal__body" id="liveModalBody"></div>
+          </div>`;
+        document.body.appendChild(modal);
+      }
+      const modalBody = modal.querySelector("#liveModalBody");
+
+      const closeModal = () => {
+        modal.classList.remove("is-open");
+        modal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      };
+
+      const openModal = (item) => {
+        const sec = [];
+        if (item.image_url) {
+          sec.push(`<div class="lm__image"><img src="${esc(item.image_url)}" alt="" loading="lazy"></div>`);
+        }
+        sec.push(`<h3 class="lm__title">${esc(item.event_name)}</h3>`);
+        if (item.description) {
+          sec.push(`<p class="lm__lead">${nl2br(item.description)}</p>`);
+        }
+
+        // 日時・会場
+        const place = `${esc(item.venue)}${item.city ? ` ／ ${esc(item.city)}` : ""}`;
+        let dateLine = esc(item.date_jp);
+        const times = [];
+        if (item.open_time)  times.push(`OPEN ${esc(item.open_time)}`);
+        if (item.start_time) times.push(`START ${esc(item.start_time)}`);
+        if (times.length) dateLine += `　${times.join(" / ")}`;
+        sec.push(
+          `<div class="lm__block"><h4 class="lm__head">日時・会場</h4>` +
+          `<p class="lm__text">${place}<br>${dateLine}</p></div>`
+        );
+
+        // チケット（複数・表形式）
+        if (Array.isArray(item.tickets) && item.tickets.length) {
+          let t = `<div class="lm__block"><h4 class="lm__head">チケット</h4><div class="lm__tickets">`;
+          item.tickets.forEach((tk) => {
+            t += `<div class="lm__ticket-row">`;
+            t += `<span class="lm__ticket-info">${tk.info ? nl2br(tk.info) : ""}</span>`;
+            if (tk.url) t += `<a class="lm__ticket-link" href="${esc(tk.url)}" target="_blank" rel="noopener">購入 →</a>`;
+            t += `</div>`;
+          });
+          t += `</div></div>`;
+          sec.push(t);
+        }
+
+        // 備考
+        if (item.notes) {
+          sec.push(`<div class="lm__block"><h4 class="lm__head">備考</h4><p class="lm__text">${nl2br(item.notes)}</p></div>`);
+        }
+
+        modalBody.innerHTML = sec.join("");
+        modalBody.scrollTop = 0;
+        modal.classList.add("is-open");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      };
+
+      list.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-detail]");
+        if (!btn) return;
+        const item = byId[btn.getAttribute("data-detail")];
+        if (item) openModal(item);
+      });
+      modal.addEventListener("click", (e) => {
+        if (e.target.hasAttribute("data-close")) closeModal();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal.classList.contains("is-open")) closeModal();
+      });
+
+      // ページネーション（10件以上のときのみ）
+      if (pagination && liveItems.length > 10) {
+        const PER_PAGE = 10;
+        let page = 1;
+        const total = Math.ceil(liveItems.length / PER_PAGE);
+
+        const renderPager = () => {
+          const start = (page - 1) * PER_PAGE;
+          liveItems.forEach((el, i) => {
+            el.style.display = i >= start && i < start + PER_PAGE ? "" : "none";
+          });
+          pagination.innerHTML = `
+            <button class="pager__btn" id="pagerPrev" ${page === 1 ? "disabled" : ""}>← 前の10件</button>
+            <span class="pager__info">${page} / ${total} ページ</span>
+            <button class="pager__btn" id="pagerNext" ${page === total ? "disabled" : ""}>次の10件 →</button>
+          `;
+          document.getElementById("pagerPrev").addEventListener("click", () => {
+            if (page > 1) { page--; renderPager(); document.getElementById("live").scrollIntoView({ behavior: "smooth", block: "start" }); }
+          });
+          document.getElementById("pagerNext").addEventListener("click", () => {
+            if (page < total) { page++; renderPager(); document.getElementById("live").scrollIntoView({ behavior: "smooth", block: "start" }); }
+          });
+        };
+        renderPager();
+      }
+    } catch {
+      list.innerHTML = '<li class="news__loading">読込に失敗しました。</li>';
+    }
+  })();
 
   /* ---------- 水たまりの波紋エフェクト ---------- */
   const layer = document.getElementById("ripple");

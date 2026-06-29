@@ -1,0 +1,64 @@
+<?php
+// ============================================================
+// melikret CMS — 共通設定・ヘルパー
+// このファイルを _inc.php にコピーして、接続情報を書き換えてください
+// ============================================================
+
+// ── 設定（ここを書き換えてください） ───────────────
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'your_db_name');    // XServer で作成した DB 名
+define('DB_USER', 'your_db_user');    // DB ユーザー名
+define('DB_PASS', 'your_db_password'); // DB パスワード
+define('ADMIN_PASS', 'change_me');    // 管理パスワード（必ず変更）
+// ──────────────────────────────────────────────────
+
+session_name('melikret_cms');
+if (session_status() === PHP_SESSION_NONE) session_start();
+
+function db(): PDO {
+    static $pdo = null;
+    if ($pdo !== null) return $pdo;
+    $pdo = new PDO(
+        sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4', DB_HOST, DB_NAME),
+        DB_USER, DB_PASS,
+        [PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+         PDO::ATTR_EMULATE_PREPARES   => false]
+    );
+    return $pdo;
+}
+
+function requireLogin(): void {
+    if (empty($_SESSION['admin_ok'])) {
+        header('Location: index.php');
+        exit;
+    }
+}
+
+function h(string $s): string {
+    return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+function csrf(): string {
+    if (empty($_SESSION['csrf'])) {
+        $_SESSION['csrf'] = bin2hex(random_bytes(24));
+    }
+    return $_SESSION['csrf'];
+}
+
+function verifyCsrf(): void {
+    if (!hash_equals(csrf(), (string)($_POST['_csrf'] ?? ''))) {
+        http_response_code(403); exit('CSRF error');
+    }
+}
+
+function statusBadge(string $status): string {
+    $map = [
+        'on_sale'     => ['badge-sale', '販売中'],
+        'sold_out'    => ['badge-sold', 'SOLD OUT'],
+        'performance' => ['badge-perf', '出演'],
+        'ended'       => ['badge-ended', '終了'],
+    ];
+    [$cls, $label] = $map[$status] ?? ['badge-ended', $status];
+    return '<span class="badge ' . $cls . '">' . h($label) . '</span>';
+}

@@ -258,6 +258,7 @@ ul { list-style: none; }
 .hero {
   position: relative;
   z-index: 2;
+  min-height: 100vh;   /* svh非対応(iOS 15以下)フォールバック */
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -288,12 +289,12 @@ ul { list-style: none; }
       rgba(255, 255, 255, 0.96) 100%);
 }
 
-/* コンセプト（メインビジュアル直後・白地。文字は写真には重ねない） */
+/* コンセプト（先頭・白地。固定ヘッダー高さ分の余白を確保） */
 .concept {
   position: relative;
   z-index: 2;
   text-align: center;
-  padding: clamp(60px, 11vh, 116px) 24px clamp(36px, 7vh, 76px);
+  padding: clamp(110px, 14vh, 150px) 24px clamp(36px, 7vh, 76px);
 }
 .concept__logo {
   width: min(58vw, 296px);
@@ -503,6 +504,22 @@ ul { list-style: none; }
   color: var(--color-ink);
   margin-bottom: 8px;
 }
+.live__name-btn {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.3s var(--ease);
+}
+.live__name-btn:hover {
+  color: var(--color-sub-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .live__place, .live__time { font-size: 0.88rem; color: var(--color-ink-soft); }
 .live__soldout { color: #c0392b; font-weight: 700; letter-spacing: 0.1em; }
 .live__btn {
@@ -543,6 +560,241 @@ ul { list-style: none; }
   color: var(--color-ink-soft);
   background: transparent;
   border-color: var(--color-line);
+}
+.live__status--soldout {
+  color: #888;
+  background: transparent;
+  border-color: #ccc;
+  text-decoration: line-through;
+}
+.live__status--ended {
+  color: #aaa;
+  background: transparent;
+  border-color: #ddd;
+}
+
+/* チケット購入リンク（「販売中」の代替） */
+.live__ticket {
+  cursor: pointer;
+  transition: background 0.3s var(--ease), color 0.3s var(--ease), border-color 0.3s var(--ease), transform 0.3s var(--ease);
+}
+.live__ticket:hover {
+  background: var(--color-sub-deep);
+  color: #fff;
+  border-color: var(--color-sub-deep);
+  transform: translateY(-1px);
+}
+
+/* 状態バッジ＋詳細ボタンの縦並び */
+.live__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+.live__detail-btn {
+  font-family: var(--font-en);
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  padding: 6px 16px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+  transition: background 0.3s var(--ease), color 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+.live__detail-btn:hover {
+  background: var(--color-ink);
+  color: #fff;
+  border-color: var(--color-ink);
+}
+
+/* ============================================================
+   LIVE 詳細モーダル
+   ============================================================ */
+.live-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: none;
+}
+.live-modal.is-open { display: block; }
+.live-modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(32, 49, 58, 0.55);
+  backdrop-filter: blur(3px);
+  animation: lm-fade 0.3s var(--ease);
+}
+.live-modal__panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(640px, calc(100vw - 40px));
+  max-height: calc(100vh - 64px);
+  background: var(--color-bg, #fff);
+  border-radius: 6px;
+  box-shadow: 0 24px 70px rgba(32, 49, 58, 0.32);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: lm-pop 0.34s var(--ease);
+}
+.live-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 2;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--color-ink);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s var(--ease);
+}
+.live-modal__close:hover { background: #fff; }
+.live-modal__body {
+  overflow-y: auto;
+  padding: 0 0 38px;
+}
+.lm__image {
+  width: 100%;
+  background: var(--color-sub-soft, #eaf4f8);
+  display: flex;
+  justify-content: center;
+}
+.lm__image img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+}
+.lm__title {
+  font-family: var(--font-mincho);
+  font-weight: 600;
+  font-size: 1.32rem;
+  line-height: 1.5;
+  letter-spacing: 0.03em;
+  color: var(--color-ink);
+  padding: 32px 40px 0;
+}
+.lm__lead {
+  font-size: 0.95rem;
+  line-height: 1.9;
+  color: var(--color-ink-soft);
+  padding: 16px 40px 0;
+}
+.lm__block { padding: 24px 40px 0; }
+.lm__head {
+  font-family: var(--font-en);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--color-sub-deep);
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--color-line);
+}
+.lm__text {
+  font-size: 0.92rem;
+  line-height: 1.85;
+  color: var(--color-ink);
+}
+.lm__ticket {
+  display: inline-block;
+  margin-top: 12px;
+  font-family: var(--font-en);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  padding: 10px 24px;
+  border: 1px solid var(--color-sub);
+  border-radius: 999px;
+  color: var(--color-sub-deep);
+  transition: background 0.3s var(--ease), color 0.3s var(--ease);
+}
+.lm__ticket:hover {
+  background: var(--color-sub-deep);
+  color: #fff;
+}
+/* チケット一覧（表形式） */
+.lm__tickets { display: flex; flex-direction: column; }
+.lm__ticket-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px dashed var(--color-line);
+}
+.lm__ticket-row:last-child { border-bottom: none; }
+.lm__ticket-info {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--color-ink);
+}
+.lm__ticket-link {
+  flex-shrink: 0;
+  font-family: var(--font-en);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  padding: 8px 20px;
+  border: 1px solid var(--color-sub);
+  border-radius: 999px;
+  color: var(--color-sub-deep);
+  transition: background 0.3s var(--ease), color 0.3s var(--ease);
+}
+.lm__ticket-link:hover {
+  background: var(--color-sub-deep);
+  color: #fff;
+}
+@keyframes lm-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes lm-pop {
+  from { opacity: 0; transform: translate(-50%, -46%) scale(0.98); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* ページネーション */
+.live__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 40px;
+}
+.pager__btn {
+  font-family: var(--font-en);
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  padding: 10px 24px;
+  border: 1px solid var(--color-sub);
+  border-radius: 999px;
+  color: var(--color-sub-deep);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s var(--ease);
+}
+.pager__btn:hover:not(:disabled) {
+  background: var(--color-sub-deep);
+  color: #fff;
+  border-color: var(--color-sub-deep);
+}
+.pager__btn:disabled { opacity: 0.3; cursor: default; }
+.pager__info {
+  font-family: var(--font-en);
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  color: var(--color-ink-soft);
 }
 
 /* セクション下部の丸ピルボタン（LIVE / DISCO / MOVIE 共通） */
@@ -670,6 +922,9 @@ ul { list-style: none; }
   object-fit: cover;
   object-position: center 22%;
   transition: transform 0.6s var(--ease);
+}
+.member__item:nth-child(3) .member__photo img {
+  object-position: center 82%;
 }
 .member__item:hover .member__photo {
   transform: translateY(-6px);
@@ -884,10 +1139,22 @@ ul { list-style: none; }
   .member { grid-template-columns: repeat(3, 1fr); gap: 18px; }
   .disco { grid-template-columns: repeat(2, 1fr); gap: 28px; }
   .movie { grid-template-columns: 1fr; }
+
+  /* hero: iOS 15以下でも確実にフルスクリーン表示 */
+  .hero {
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+  /* コンセプトセクション: スマホで上部余白を最適化 */
+  .concept {
+    padding: clamp(90px, 13vh, 130px) 20px clamp(24px, 5vh, 56px);
+  }
+  .concept__logo { width: min(60vw, 260px); }
 }
 
 @media (max-width: 560px) {
-  .section { padding: 84px 22px; }
+  .section { padding: 72px 20px; }
+  .section__head { margin-bottom: 40px; }
 
   .news__item {
     grid-template-columns: 1fr;
@@ -897,15 +1164,71 @@ ul { list-style: none; }
 
   .live__item {
     grid-template-columns: 72px 1fr;
-    grid-template-areas: "date body" "date status";
+    grid-template-areas: "date body" "date actions";
     gap: 4px 16px;
     align-items: start;
   }
   .live__date { grid-area: date; }
   .live__body { grid-area: body; }
-  .live__status { grid-area: status; justify-self: start; margin-top: 8px; }
+  .live__actions {
+    grid-area: actions;
+    flex-direction: row;
+    align-items: center;
+    justify-self: start;
+    margin-top: 8px;
+  }
   .live__date-day { font-size: 1.5rem; }
 
-  .member { grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .disco { grid-template-columns: 1fr; max-width: 340px; margin: 0 auto; }
+  .lm__title { padding: 26px 24px 0; font-size: 1.18rem; }
+  .lm__lead { padding: 14px 24px 0; }
+  .lm__block { padding: 20px 24px 0; }
+  .lm__image img { max-height: 72vh; }
+
+  .member { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .member__name { font-size: 0.9rem; }
+  .member__role { font-size: 0.72rem; }
+
+  /* discography: 2列でコンパクトに（1画面に2〜4曲表示） */
+  .disco { grid-template-columns: repeat(2, 1fr); max-width: unset; margin: 0; gap: 14px; }
+  .disco__jacket { border-radius: 4px; }
+  .disco__title { font-size: 0.88rem; }
+  .disco__type  { font-size: 0.75rem; }
+  .disco__link  { font-size: 0.72rem; margin-top: 8px; padding: 5px 12px; }
+
+  /* hero: スマホで横幅フルに両端まで収まるよう自然なサイズで表示 */
+  .hero {
+    min-height: unset;
+    height: auto;
+    padding: 0;
+    display: block;
+  }
+  .hero__img {
+    position: relative;
+    top: auto; right: auto; bottom: auto; left: auto;
+    width: 100%;
+    height: auto;
+    object-fit: initial;
+    object-position: initial;
+  }
+  .hero__overlay,
+  .hero__scroll { display: none; }
+
+  /* コンセプトセクション: さらに小さい画面向け */
+  .concept {
+    padding: clamp(80px, 12vh, 110px) 18px clamp(20px, 4vh, 44px);
+  }
+  .concept__logo { width: min(72vw, 220px); margin-bottom: 20px; }
+  .concept__text { font-size: calc(clamp(1rem, 4.8vw, 1.4rem) - 5px); }
+
+  /* keyvisual: 背景画像を縦長画面でも中央に正しく表示 */
+  .keyvisual { height: clamp(280px, 52vh, 440px); }
+  .keyvisual__img { object-position: center 35%; }
+}
+
+/* ごく狭いスマホ（〜390px）向け細調整 */
+@media (max-width: 390px) {
+  .section { padding: 60px 16px; }
+  .member { gap: 8px; }
+  .live__item { gap: 4px 12px; }
+  .live__date-day { font-size: 1.35rem; }
 }
