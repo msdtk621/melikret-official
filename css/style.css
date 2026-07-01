@@ -368,7 +368,7 @@ ul { list-style: none; }
 .to-top {
   position: fixed;
   right: clamp(4px, 1vw, 12px);
-  bottom: clamp(4px, 1vw, 12px);
+  bottom: clamp(-14px, -1vw, -6px);
   z-index: 90;
   width: auto; height: auto;
   border: none;
