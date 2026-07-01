@@ -1222,6 +1222,10 @@ ul { list-style: none; }
   .section { padding: 72px 20px; }
   .section__head { margin-bottom: 40px; }
 
+  /* to-top: スマホはメリーを100px・画面端まで右寄せ */
+  .to-top { right: -8px; }
+  .to-top img { width: 100px; height: 100px; }
+
   .news__item {
     grid-template-columns: 1fr;
     gap: 6px;
