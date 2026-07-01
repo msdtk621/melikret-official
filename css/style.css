@@ -367,8 +367,8 @@ ul { list-style: none; }
 /* ページ先頭へ戻るボタン（右下） */
 .to-top {
   position: fixed;
-  right: clamp(16px, 3vw, 34px);
-  bottom: clamp(16px, 3vw, 34px);
+  right: clamp(4px, 1vw, 12px);
+  bottom: clamp(4px, 1vw, 12px);
   z-index: 90;
   width: auto; height: auto;
   border: none;
