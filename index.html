@@ -50,7 +50,7 @@
 
   <!-- ローディング画面がCSS読み込み前から画面を覆うための最小スタイル -->
   <style>.loader{position:fixed;inset:0;z-index:1000;background:#fff;display:flex;align-items:center;justify-content:center}</style>
-  <link rel="stylesheet" href="css/style.css?v=20260708a" />
+  <link rel="stylesheet" href="css/style.css?v=20260708b" />
 
   <!-- 構造化データ（検索結果でのバンド情報表示用・schema.org MusicGroup） -->
   <script type="application/ld+json">
@@ -280,7 +280,7 @@
       </div>
 
       <!-- ▼▼ ジャケット画像は Apple Music の公式アートワークを参照しています ▼▼ -->
-      <ul class="disco">
+      <ul class="disco" id="discoList">
         <li class="disco__item">
           <a class="disco__jacket" href="https://music.apple.com/jp/album/%E3%81%82%E3%81%97%E3%81%9F%E3%81%AE%E3%81%94%E3%81%A1%E3%81%9D%E3%81%86-single/6781955498" target="_blank" rel="noopener">
             <img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/b5/8b/00/b58b00f6-d748-c7cd-937e-67b7a22e7786/bigup14473388.jpg/600x600bb.jpg" alt="あしたのごちそう ジャケット" loading="lazy" />
@@ -359,6 +359,7 @@
           </div>
         </li>
       </ul>
+      <div class="disco__pagination" id="discoPagination"></div>
       <div class="disco__more">
         <a class="btn-pill" href="https://melikret.lnk.to/melikret" target="_blank" rel="noopener">すべての作品を配信で聴く &rarr;</a>
       </div>
@@ -450,6 +451,6 @@
     <img src="images/メリーちゃん.png" alt="" aria-hidden="true" />
   </button>
 
-  <script src="js/main.js"></script>
+  <script src="js/main.js?v=20260708b"></script>
 </body>
 </html>

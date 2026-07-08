@@ -765,7 +765,8 @@ ul { list-style: none; }
 }
 
 /* ページネーション */
-.live__pagination {
+.live__pagination,
+.disco__pagination {
   display: flex;
   align-items: center;
   justify-content: center;

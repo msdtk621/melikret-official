@@ -86,6 +86,39 @@ document.addEventListener("DOMContentLoaded", () => {
     revealTargets.forEach((el) => el.classList.add("is-visible"));
   }
 
+  /* ---------- ディスコグラフィー：6件ごとのページネーション ---------- */
+  (() => {
+    const list = document.getElementById("discoList");
+    const pagination = document.getElementById("discoPagination");
+    if (!list || !pagination) return;
+
+    const items = Array.from(list.querySelectorAll(".disco__item"));
+    const PER_PAGE = 6;
+    if (items.length <= PER_PAGE) return;
+
+    const total = Math.ceil(items.length / PER_PAGE);
+    let page = 1;
+
+    const renderPager = () => {
+      const start = (page - 1) * PER_PAGE;
+      items.forEach((el, i) => {
+        el.style.display = i >= start && i < start + PER_PAGE ? "" : "none";
+      });
+      pagination.innerHTML = `
+        <button class="pager__btn" id="discoPagerPrev" ${page === 1 ? "disabled" : ""}>← 前の${PER_PAGE}件</button>
+        <span class="pager__info">${page} / ${total} ページ</span>
+        <button class="pager__btn" id="discoPagerNext" ${page === total ? "disabled" : ""}>次の${PER_PAGE}件 →</button>
+      `;
+      document.getElementById("discoPagerPrev").addEventListener("click", () => {
+        if (page > 1) { page--; renderPager(); document.getElementById("discography").scrollIntoView({ behavior: "smooth", block: "start" }); }
+      });
+      document.getElementById("discoPagerNext").addEventListener("click", () => {
+        if (page < total) { page++; renderPager(); document.getElementById("discography").scrollIntoView({ behavior: "smooth", block: "start" }); }
+      });
+    };
+    renderPager();
+  })();
+
   /* ---------- API: ニュース & ライブ読み込み ---------- */
   const observeEl = (el) => {
     if (io) { io.observe(el); }
