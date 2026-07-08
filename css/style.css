@@ -825,7 +825,8 @@ ul { list-style: none; }
 .keyvisual {
   position: relative;
   z-index: 2;
-  height: clamp(320px, 56vh, 560px);
+  /* 画像は16:9(56.25vw)。高さがそれを超えないようにして左右が切れるのを防ぐ */
+  height: clamp(200px, min(56vh, 56.25vw), 560px);
   overflow: hidden;
   display: grid;
   place-items: center;
@@ -1298,9 +1299,6 @@ ul { list-style: none; }
   .concept__logo { width: min(72vw, 220px); margin-bottom: 20px; }
   .concept__text { font-size: calc(clamp(1rem, 4.8vw, 1.4rem) - 5px); }
 
-  /* keyvisual: 背景画像を縦長画面でも中央に正しく表示 */
-  .keyvisual { height: clamp(280px, 52vh, 440px); }
-  .keyvisual__img { object-position: center 35%; }
 }
 
 /* ごく狭いスマホ（〜390px）向け細調整 */
