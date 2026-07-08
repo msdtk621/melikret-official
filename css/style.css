@@ -1226,6 +1226,9 @@ ul { list-style: none; }
   .to-top { right: -8px; }
   .to-top img { width: 100px; height: 100px; }
 
+  /* キービジュアルのコピー: 1行に収まるよう縮小 */
+  .keyvisual__copy-jp { font-size: clamp(0.82rem, 3.3vw, 1rem); letter-spacing: 0.08em; }
+
   .news__item {
     grid-template-columns: 1fr;
     gap: 6px;
