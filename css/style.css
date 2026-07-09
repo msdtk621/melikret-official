@@ -466,6 +466,21 @@ ul { list-style: none; }
   color: var(--color-sub-deep);
 }
 .news__text { font-size: 0.96rem; color: var(--color-ink); }
+.news__text-btn {
+  font: inherit;
+  letter-spacing: inherit;
+  color: var(--color-ink);
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.news__text-btn:hover {
+  color: var(--color-sub-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 /* ============================================================
    LIVE

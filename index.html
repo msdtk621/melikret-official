@@ -50,7 +50,7 @@
 
   <!-- ローディング画面がCSS読み込み前から画面を覆うための最小スタイル -->
   <style>.loader{position:fixed;inset:0;z-index:1000;background:#fff;display:flex;align-items:center;justify-content:center}</style>
-  <link rel="stylesheet" href="css/style.css?v=20260708c" />
+  <link rel="stylesheet" href="css/style.css?v=20260708d" />
 
   <!-- 構造化データ（検索結果でのバンド情報表示用・schema.org MusicGroup） -->
   <script type="application/ld+json">
@@ -167,17 +167,8 @@
 
   <main>
 
-    <!-- ============================== TOUR BANNER ============================== -->
-    <!-- ▼ ツアービジュアル。images/tour.jpg を追加してください ▼ -->
-    <a class="tour-banner" href="https://melikret.lnk.to/2ndLiveTour2026" target="_blank" rel="noopener" aria-label="メリクレット 2nd Tour 2026 特設ページへ">
-      <img class="tour-banner__img" src="images/tour.jpg" alt="メリクレット 2nd Tour 2026" loading="eager" />
-      <div class="tour-banner__overlay" aria-hidden="true"></div>
-      <div class="tour-banner__inner">
-        <p class="tour-banner__label">TOUR</p>
-        <p class="tour-banner__title">メリクレット<br>2nd Tour 2026</p>
-        <span class="tour-banner__btn">ツアー詳細へ &rarr;</span>
-      </div>
-    </a>
+    <!-- ============================== TOP売出項目（CMS管理・api/feature.php） ============================== -->
+    <div id="featureBanner"></div>
 
     <!-- ============================== LIVE ============================== -->
     <section class="section section--tint" id="live">
@@ -279,85 +270,9 @@
         <p class="section__title-jp">作品</p>
       </div>
 
-      <!-- ▼▼ ジャケット画像は Apple Music の公式アートワークを参照しています ▼▼ -->
+      <!-- ▼▼ CMS管理（api/discography.php）。ジャケット画像・リンクは管理画面から編集 ▼▼ -->
       <ul class="disco" id="discoList">
-        <li class="disco__item">
-          <a class="disco__jacket" href="https://music.apple.com/jp/album/%E3%81%82%E3%81%97%E3%81%9F%E3%81%AE%E3%81%94%E3%81%A1%E3%81%9D%E3%81%86-single/6781955498" target="_blank" rel="noopener">
-            <img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/b5/8b/00/b58b00f6-d748-c7cd-937e-67b7a22e7786/bigup14473388.jpg/600x600bb.jpg" alt="あしたのごちそう ジャケット" loading="lazy" />
-          </a>
-          <div class="disco__info">
-            <p class="disco__date">2026.07.08</p>
-            <h3 class="disco__title">あしたのごちそう</h3>
-            <p class="disco__type">Digital Single</p>
-            <a class="disco__link" href="https://music.apple.com/jp/album/%E3%81%82%E3%81%97%E3%81%9F%E3%81%AE%E3%81%94%E3%81%A1%E3%81%9D%E3%81%86-single/6781955498" target="_blank" rel="noopener">LISTEN &rarr;</a>
-          </div>
-        </li>
-        <li class="disco__item">
-          <a class="disco__jacket" href="https://music.apple.com/jp/album/%E3%83%8D%E3%82%AC-%E3%83%AA%E3%82%BB%E3%83%83%E3%83%88-single/6764221819" target="_blank" rel="noopener">
-            <img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/5e/34/64/5e346450-2a16-5d37-e15a-48501cdda069/ticket.vyzqjdod.jpg/600x600bb.jpg" alt="ネガ・リセット！ ジャケット" loading="lazy" />
-          </a>
-          <div class="disco__info">
-            <p class="disco__date">2026.05.13</p>
-            <h3 class="disco__title">ネガ・リセット！</h3>
-            <p class="disco__type">Digital Single</p>
-            <a class="disco__link" href="https://music.apple.com/jp/album/%E3%83%8D%E3%82%AC-%E3%83%AA%E3%82%BB%E3%83%83%E3%83%88-single/6764221819" target="_blank" rel="noopener">LISTEN &rarr;</a>
-          </div>
-        </li>
-        <li class="disco__item">
-          <a class="disco__jacket" href="https://melikret.lnk.to/1stminialbum" target="_blank" rel="noopener">
-            <img src="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/36/ad/d6/36add669-e470-3213-d933-1e7a3be55e6f/bigup14304664.jpg/600x600bb.jpg" alt="1ヨクトの眠り姫 ジャケット" loading="lazy" />
-          </a>
-          <div class="disco__info">
-            <p class="disco__date">2026.02.04</p>
-            <h3 class="disco__title">1ヨクトの眠り姫</h3>
-            <p class="disco__type">1st mini album</p>
-            <a class="disco__link" href="https://melikret.lnk.to/1stminialbum" target="_blank" rel="noopener">LISTEN &rarr;</a>
-          </div>
-        </li>
-        <li class="disco__item">
-          <a class="disco__jacket" href="https://music.apple.com/jp/album/1856778626" target="_blank" rel="noopener">
-            <img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e7/c1/fd/e7c1fd57-3838-cf1d-81d5-75153a11c1ac/bigup14254698.jpg/600x600bb.jpg" alt="イヴと凍花の国 ジャケット" loading="lazy" />
-          </a>
-          <div class="disco__info">
-            <p class="disco__date">2025.12.17</p>
-            <h3 class="disco__title">イヴと凍花の国</h3>
-            <p class="disco__type">Digital Single</p>
-            <a class="disco__link" href="https://melikret.lnk.to/melikret" target="_blank" rel="noopener">LISTEN &rarr;</a>
-          </div>
-        </li>
-        <li class="disco__item">
-          <a class="disco__jacket" href="https://music.apple.com/jp/album/1845010230" target="_blank" rel="noopener">
-            <img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/69/58/e9/6958e98d-4c9d-2b03-f87a-1ceb48baf6e3/bigup14208777.jpg/600x600bb.jpg" alt="偽物 ジャケット" loading="lazy" />
-          </a>
-          <div class="disco__info">
-            <p class="disco__date">2025.10.29</p>
-            <h3 class="disco__title">偽物</h3>
-            <p class="disco__type">Digital Single</p>
-            <a class="disco__link" href="https://melikret.lnk.to/melikret" target="_blank" rel="noopener">LISTEN &rarr;</a>
-          </div>
-        </li>
-        <li class="disco__item">
-          <a class="disco__jacket" href="https://music.apple.com/jp/album/1826462811" target="_blank" rel="noopener">
-            <img src="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/0e/3f/0d/0e3f0d92-debe-65d6-456b-ba5bdfc3f55e/bigup14118823.jpg/600x600bb.jpg" alt="透水 ジャケット" loading="lazy" />
-          </a>
-          <div class="disco__info">
-            <p class="disco__date">2025.07.30</p>
-            <h3 class="disco__title">透水</h3>
-            <p class="disco__type">Digital Single</p>
-            <a class="disco__link" href="https://melikret.lnk.to/melikret" target="_blank" rel="noopener">LISTEN &rarr;</a>
-          </div>
-        </li>
-        <li class="disco__item">
-          <a class="disco__jacket" href="https://music.apple.com/jp/album/1819423618" target="_blank" rel="noopener">
-            <img src="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/3d/33/ba/3d33bab6-7f7c-b3cb-ff23-4ef9851f6b26/bigup14092476.jpg/600x600bb.jpg" alt="メリーバッドエンド ジャケット" loading="lazy" />
-          </a>
-          <div class="disco__info">
-            <p class="disco__date">2025.06.25</p>
-            <h3 class="disco__title">メリーバッドエンド</h3>
-            <p class="disco__type">Digital Single</p>
-            <a class="disco__link" href="https://melikret.lnk.to/melikret" target="_blank" rel="noopener">LISTEN &rarr;</a>
-          </div>
-        </li>
+        <li class="news__loading">読込中…</li>
       </ul>
       <div class="disco__pagination" id="discoPagination"></div>
       <div class="disco__more">
@@ -373,25 +288,8 @@
         <p class="section__title-jp">映像</p>
       </div>
 
-      <!-- ▼▼ YouTube (@melikret) のMV。別の動画にするには embed の動画IDを差し替え ▼▼ -->
-      <div class="movie">
-        <div class="movie__frame">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/U1-YQfccF8Q"
-            title="ネガ・リセット！ - メリクレット (Music Video)"
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen></iframe>
-        </div>
-        <div class="movie__frame">
-          <iframe
-            src="https://www.youtube-nocookie.com/embed/0q0IOK8r7h8"
-            title="セミロング - メリクレット (Music Video)"
-            loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen></iframe>
-        </div>
-      </div>
+      <!-- ▼▼ CMS管理（api/movie.php） ▼▼ -->
+      <div class="movie" id="movieList"></div>
       <div class="movie__more">
         <a class="btn-pill" href="https://www.youtube.com/@melikret" target="_blank" rel="noopener">YouTubeチャンネルを見る &rarr;</a>
       </div>
@@ -451,6 +349,6 @@
     <img src="images/メリーちゃん.png" alt="" aria-hidden="true" />
   </button>
 
-  <script src="js/main.js?v=20260708b"></script>
+  <script src="js/main.js?v=20260708d"></script>
 </body>
 </html>

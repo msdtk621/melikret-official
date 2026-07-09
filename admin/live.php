@@ -9,36 +9,6 @@ $id     = (int)($_GET['id'] ?? 0);
 $flash  = '';
 $error  = '';
 
-/* ── 画像アップロード処理 ───────────────────────────
-   成功: 'uploads/xxx.jpg' を返す / ファイル未選択: null / 失敗: null + $error 設定 */
-function handleImageUpload(?string &$error): ?string {
-    if (empty($_FILES['image']['name']) || ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
-        return null; // ファイル未選択
-    }
-    $f = $_FILES['image'];
-    if ($f['error'] !== UPLOAD_ERR_OK) { $error = '画像のアップロードに失敗しました（コード: ' . $f['error'] . '）'; return null; }
-    if ($f['size'] > 6 * 1024 * 1024)  { $error = '画像は6MB以下にしてください'; return null; }
-
-    $info = @getimagesize($f['tmp_name']);
-    if ($info === false) { $error = '画像ファイルとして認識できませんでした'; return null; }
-    $extMap = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp'];
-    $ext = $extMap[$info['mime']] ?? null;
-    if (!$ext) { $error = '対応形式は JPEG / PNG / GIF / WebP です'; return null; }
-
-    $dir = __DIR__ . '/../uploads';
-    if (!is_dir($dir) && !@mkdir($dir, 0755, true)) { $error = 'uploads ディレクトリを作成できませんでした'; return null; }
-    $name = 'live_' . date('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
-    if (!move_uploaded_file($f['tmp_name'], $dir . '/' . $name)) { $error = '画像の保存に失敗しました'; return null; }
-    return 'uploads/' . $name;
-}
-
-/* サーバー上の画像ファイルを削除（uploads/ 配下のみ許可） */
-function deleteImage(?string $path): void {
-    if (!$path || strpos($path, 'uploads/') !== 0) return;
-    $full = __DIR__ . '/../' . $path;
-    if (is_file($full)) @unlink($full);
-}
-
 /* POST のチケット配列を [{info,url}, ...]（最大5件・両方空はスキップ）に整形 */
 function collectTickets(): array {
     $infos = $_POST['ticket_info'] ?? [];
@@ -95,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$date || !$name || !$venue) {
             $error = '日付・公演名・会場は必須です';
         } else {
-            $image = handleImageUpload($error);
+            $image = handleImageUpload($error, 'live');
             if (!$error) {
                 db()->prepare(
                     'INSERT INTO melikret_live
@@ -115,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $cur->execute([$eid]);
             $oldImage = (string)($cur->fetchColumn() ?: '');
 
-            $newImage = handleImageUpload($error);
+            $newImage = handleImageUpload($error, 'live');
             if (!$error) {
                 $image = $oldImage;
                 if ($newImage !== null) {            // 新しい画像をアップロード → 差し替え

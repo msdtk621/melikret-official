@@ -86,46 +86,71 @@ document.addEventListener("DOMContentLoaded", () => {
     revealTargets.forEach((el) => el.classList.add("is-visible"));
   }
 
-  /* ---------- ディスコグラフィー：6件ごとのページネーション ---------- */
-  (() => {
-    const list = document.getElementById("discoList");
-    const pagination = document.getElementById("discoPagination");
-    if (!list || !pagination) return;
-
-    const items = Array.from(list.querySelectorAll(".disco__item"));
-    const PER_PAGE = 6;
-    if (items.length <= PER_PAGE) return;
-
-    const total = Math.ceil(items.length / PER_PAGE);
-    let page = 1;
-
-    const renderPager = () => {
-      const start = (page - 1) * PER_PAGE;
-      items.forEach((el, i) => {
-        el.style.display = i >= start && i < start + PER_PAGE ? "" : "none";
-      });
-      pagination.innerHTML = `
-        <button class="pager__btn" id="discoPagerPrev" ${page === 1 ? "disabled" : ""}>← 前の${PER_PAGE}件</button>
-        <span class="pager__info">${page} / ${total} ページ</span>
-        <button class="pager__btn" id="discoPagerNext" ${page === total ? "disabled" : ""}>次の${PER_PAGE}件 →</button>
-      `;
-      document.getElementById("discoPagerPrev").addEventListener("click", () => {
-        if (page > 1) { page--; renderPager(); document.getElementById("discography").scrollIntoView({ behavior: "smooth", block: "start" }); }
-      });
-      document.getElementById("discoPagerNext").addEventListener("click", () => {
-        if (page < total) { page++; renderPager(); document.getElementById("discography").scrollIntoView({ behavior: "smooth", block: "start" }); }
-      });
-    };
-    renderPager();
-  })();
-
-  /* ---------- API: ニュース & ライブ読み込み ---------- */
+  /* ---------- API: TOP売出項目 / ニュース / ディスコグラフィー / MOVIE / ライブ ---------- */
   const observeEl = (el) => {
     if (io) { io.observe(el); }
     else { el.classList.add("is-visible"); }
   };
 
-  // ── ニュース ──────────────────────────────────────────
+  const escHtml = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const nl2brHtml = (s) => escHtml(s).replace(/\n/g, "<br>");
+
+  /* 汎用の詳細モーダルを1つ用意し、live/newsで共有する */
+  const ensureDetailModal = (id) => {
+    let modal = document.getElementById(id);
+    if (!modal) {
+      modal = document.createElement("div");
+      modal.id = id;
+      modal.className = "live-modal";
+      modal.setAttribute("aria-hidden", "true");
+      modal.innerHTML = `
+        <div class="live-modal__overlay" data-close></div>
+        <div class="live-modal__panel" role="dialog" aria-modal="true" aria-label="詳細">
+          <button class="live-modal__close" data-close aria-label="閉じる">×</button>
+          <div class="live-modal__body" id="${id}Body"></div>
+        </div>`;
+      document.body.appendChild(modal);
+      const close = () => {
+        modal.classList.remove("is-open");
+        modal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      };
+      modal.addEventListener("click", (e) => { if (e.target.hasAttribute("data-close")) close(); });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal.classList.contains("is-open")) close();
+      });
+      modal._close = close;
+    }
+    return modal;
+  };
+
+  // ── TOP売出項目（ツアーバナー等） ────────────────────────
+  (async () => {
+    const holder = document.getElementById("featureBanner");
+    if (!holder) return;
+    try {
+      const res = await fetch("api/feature.php");
+      if (!res.ok) throw new Error(res.status);
+      const f = await res.json();
+      if (!f) { holder.remove(); return; }
+      const titleHtml = nl2brHtml(f.title || "");
+      holder.innerHTML = `
+        <a class="tour-banner" href="${escHtml(f.link_url)}" target="_blank" rel="noopener" aria-label="${escHtml(f.title || "")}">
+          <img class="tour-banner__img" src="${escHtml(f.image_url)}" alt="${escHtml(f.title || "")}" loading="eager" />
+          <div class="tour-banner__overlay" aria-hidden="true"></div>
+          <div class="tour-banner__inner">
+            ${f.label ? `<p class="tour-banner__label">${escHtml(f.label)}</p>` : ""}
+            <p class="tour-banner__title">${titleHtml}</p>
+            <span class="tour-banner__btn">${escHtml(f.button_label || "詳しく見る")} &rarr;</span>
+          </div>
+        </a>`;
+    } catch {
+      holder.remove();
+    }
+  })();
+
+  // ── ニュース（詳細モーダル対応） ──────────────────────────
   (async () => {
     const list = document.getElementById("newsList");
     if (!list) return;
@@ -137,19 +162,139 @@ document.addEventListener("DOMContentLoaded", () => {
         list.innerHTML = '<li class="news__loading">ニュースはありません。</li>';
         return;
       }
+
+      const byId = {};
+      items.forEach((it) => { byId[it.id] = it; });
+
       list.innerHTML = items.map(n => `
         <li class="news__item reveal">
           <time class="news__date" datetime="${n.date}">${n.date_display}</time>
           <span class="news__cat">${n.category}</span>
-          <p class="news__text">${n.text}</p>
+          ${n.has_detail
+            ? `<button type="button" class="news__text news__text-btn" data-news-detail="${n.id}">${escHtml(n.text)}</button>`
+            : `<p class="news__text">${escHtml(n.text)}</p>`}
         </li>
       `).join("");
       list.querySelectorAll(".news__item").forEach((el, i) => {
         el.dataset.delay = (i % 8) * 90;
         observeEl(el);
       });
+
+      if (items.some(n => n.has_detail)) {
+        const modal = ensureDetailModal("newsModal");
+        const modalBody = modal.querySelector("#newsModalBody");
+
+        const openNewsModal = (n) => {
+          const sec = [];
+          if (n.image_url) sec.push(`<div class="lm__image"><img src="${escHtml(n.image_url)}" alt="" loading="lazy"></div>`);
+          sec.push(`<h3 class="lm__title">${escHtml(n.title || n.text)}</h3>`);
+          sec.push(`<p class="lm__lead" style="margin-bottom:0">${escHtml(n.date_display)}　${escHtml(n.category)}</p>`);
+          if (n.description) sec.push(`<p class="lm__lead">${nl2brHtml(n.description)}</p>`);
+          if (n.link_url) sec.push(`<div class="lm__block"><a class="disco__link" href="${escHtml(n.link_url)}" target="_blank" rel="noopener">${escHtml(n.link_label)}</a></div>`);
+          modalBody.innerHTML = sec.join("");
+          modalBody.scrollTop = 0;
+          modal.classList.add("is-open");
+          modal.setAttribute("aria-hidden", "false");
+          document.body.style.overflow = "hidden";
+        };
+
+        list.addEventListener("click", (e) => {
+          const btn = e.target.closest("[data-news-detail]");
+          if (!btn) return;
+          const item = byId[btn.getAttribute("data-news-detail")];
+          if (item) openNewsModal(item);
+        });
+      }
     } catch {
       list.innerHTML = '<li class="news__loading">読込に失敗しました。</li>';
+    }
+  })();
+
+  // ── ディスコグラフィー（6件ごとのページネーション） ────────
+  (async () => {
+    const list = document.getElementById("discoList");
+    const pagination = document.getElementById("discoPagination");
+    if (!list) return;
+    try {
+      const res = await fetch("api/discography.php");
+      if (!res.ok) throw new Error(res.status);
+      const items = await res.json();
+      if (!items.length) {
+        list.innerHTML = '<li class="news__loading">作品はありません。</li>';
+        return;
+      }
+
+      list.innerHTML = items.map(d => `
+        <li class="disco__item reveal">
+          <a class="disco__jacket" href="${escHtml(d.link_url)}" target="_blank" rel="noopener">
+            <img src="${escHtml(d.jacket_url)}" alt="${escHtml(d.title)} ジャケット" loading="lazy" />
+          </a>
+          <div class="disco__info">
+            <p class="disco__date">${escHtml(d.date_display)}</p>
+            <h3 class="disco__title">${escHtml(d.title)}</h3>
+            <p class="disco__type">${escHtml(d.type)}</p>
+            <a class="disco__link" href="${escHtml(d.link_url)}" target="_blank" rel="noopener">LISTEN &rarr;</a>
+          </div>
+        </li>
+      `).join("");
+
+      const discoItems = Array.from(list.querySelectorAll(".disco__item"));
+      discoItems.forEach((el, i) => {
+        el.dataset.delay = (i % 8) * 90;
+        observeEl(el);
+      });
+
+      if (pagination && discoItems.length > 6) {
+        const PER_PAGE = 6;
+        let page = 1;
+        const total = Math.ceil(discoItems.length / PER_PAGE);
+
+        const renderPager = () => {
+          const start = (page - 1) * PER_PAGE;
+          discoItems.forEach((el, i) => {
+            el.style.display = i >= start && i < start + PER_PAGE ? "" : "none";
+          });
+          pagination.innerHTML = `
+            <button class="pager__btn" id="discoPagerPrev" ${page === 1 ? "disabled" : ""}>← 前の${PER_PAGE}件</button>
+            <span class="pager__info">${page} / ${total} ページ</span>
+            <button class="pager__btn" id="discoPagerNext" ${page === total ? "disabled" : ""}>次の${PER_PAGE}件 →</button>
+          `;
+          document.getElementById("discoPagerPrev").addEventListener("click", () => {
+            if (page > 1) { page--; renderPager(); document.getElementById("discography").scrollIntoView({ behavior: "smooth", block: "start" }); }
+          });
+          document.getElementById("discoPagerNext").addEventListener("click", () => {
+            if (page < total) { page++; renderPager(); document.getElementById("discography").scrollIntoView({ behavior: "smooth", block: "start" }); }
+          });
+        };
+        renderPager();
+      }
+    } catch {
+      list.innerHTML = '<li class="news__loading">読込に失敗しました。</li>';
+    }
+  })();
+
+  // ── MOVIE ──────────────────────────────────────────────
+  (async () => {
+    const list = document.getElementById("movieList");
+    if (!list) return;
+    try {
+      const res = await fetch("api/movie.php");
+      if (!res.ok) throw new Error(res.status);
+      const items = await res.json();
+      if (!items.length) return;
+
+      list.innerHTML = items.map(m => `
+        <div class="movie__frame">
+          <iframe
+            src="https://www.youtube-nocookie.com/embed/${escHtml(m.youtube_id)}"
+            title="${escHtml(m.title)}"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen></iframe>
+        </div>
+      `).join("");
+    } catch {
+      /* MOVIEは読込失敗時、見出しとYouTubeリンクのみ表示のまま */
     }
   })();
 
