@@ -175,14 +175,18 @@ ul { list-style: none; }
   padding: 12px 40px;
   background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 1px 0 var(--color-line), 0 8px 30px rgba(32, 49, 58, 0.06);
 }
 /* SPメニュー展開中: header の backdrop-filter が #gnav(position:fixed) の
-   containing block になり画面全体を覆えなくなるため、展開中だけ無効化する */
+   containing block になり画面全体を覆えなくなるため、展開中だけ無効化する。
+   transition: none で「ぼかしが徐々に消える間だけ崩れて見える」時間差も排除する */
 .header.nav-open {
   backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   background: transparent;
   box-shadow: none;
+  transition: none;
 }
 
 .header__logo { display: flex; align-items: center; }
