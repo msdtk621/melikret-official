@@ -38,12 +38,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeMenu = () => {
     hamburger.classList.remove("is-open");
     gnav.classList.remove("is-open");
+    header.classList.remove("nav-open");
     hamburger.setAttribute("aria-expanded", "false");
   };
 
   hamburger.addEventListener("click", () => {
     const opened = hamburger.classList.toggle("is-open");
     gnav.classList.toggle("is-open", opened);
+    // header.is-scrolled の backdrop-filter が #gnav(position:fixed) の containing block になり
+    // フルスクリーン表示できなくなるのを防ぐため、メニュー展開中は header 側のフィルターを外す
+    header.classList.toggle("nav-open", opened);
     hamburger.setAttribute("aria-expanded", String(opened));
   });
 
