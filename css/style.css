@@ -1216,7 +1216,7 @@ ul { list-style: none; }
     backdrop-filter: blur(10px);
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.45s var(--ease), visibility 0.45s;
+    transition: opacity 0.18s var(--ease), visibility 0.18s;
   }
   .gnav.is-open { opacity: 1; visibility: visible; }
   .gnav__list { flex-direction: column; align-items: center; gap: 22px; }
