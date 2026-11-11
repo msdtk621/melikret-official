@@ -166,9 +166,14 @@ document.addEventListener("DOMContentLoaded", () => {
     holder.className = "feature-slider";
     holder.setAttribute("aria-roledescription", "carousel");
     holder.setAttribute("aria-label", "注目のお知らせ");
+    const chevron = (d) => `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     holder.innerHTML = `
-      <div class="feature-slider__viewport">
-        <ul class="feature-slider__track"></ul>
+      <div class="feature-slider__stage">
+        <div class="feature-slider__viewport">
+          <ul class="feature-slider__track"></ul>
+        </div>
+        <button type="button" class="feature-slider__arrow feature-slider__arrow--prev" aria-label="前のバナー">${chevron("M15 5l-7 7 7 7")}</button>
+        <button type="button" class="feature-slider__arrow feature-slider__arrow--next" aria-label="次のバナー">${chevron("M9 5l7 7-7 7")}</button>
       </div>
       <div class="feature-slider__dots" role="tablist" aria-label="バナーの切り替え"></div>`;
 
@@ -176,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const track = holder.querySelector(".feature-slider__track");
     const dotsBox = holder.querySelector(".feature-slider__dots");
     const total = items.length;
-    const INTERVAL = 4500;
+    const INTERVAL = 3500;  // 1枚を表示しておく時間（ミリ秒）
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     // 1画面に並べる枚数（画面幅で決める）
@@ -280,7 +285,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ? items.map((_, k) => `<button type="button" role="tab" aria-label="${k + 1}枚目を表示"></button>`).join("")
         : "";
       dotsBox.querySelectorAll("button").forEach((b, k) => {
-        b.addEventListener("click", () => { normalize(); moveTo(k); start(); });
+        b.addEventListener("click", () => { normalize(); moveTo(k); resume(); });
       });
 
       moveTo(0, false);
@@ -307,11 +312,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }, { passive: true });
 
     // マウスを載せている間・キーボード操作中・タブが裏にある間は止める
-    holder.addEventListener("mouseenter", stop);
-    holder.addEventListener("mouseleave", start);
+    // （スマホのタップで mouseenter が出て止まったままにならないよう、マウスのときだけ見る）
+    let hovering = false;
+    const keyboardFocus = () => {
+      const el = document.activeElement;
+      return !!(el && holder.contains(el) && el.matches(":focus-visible"));
+    };
+    // 手で動かしたあと：マウスが載っておらず、キーボード操作中でもなければ、間隔を数え直して自動送りを続ける
+    const resume = () => { if (!hovering && !keyboardFocus()) start(); };
+    holder.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") { hovering = true; stop(); } });
+    holder.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") { hovering = false; start(); } });
     holder.addEventListener("focusin", stop);
-    holder.addEventListener("focusout", start);
-    document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
+    holder.addEventListener("focusout", () => { if (!hovering) start(); });
+    document.addEventListener("visibilitychange", () => (document.hidden ? stop() : resume()));
+
+    // 左右の矢印ボタン
+    holder.querySelector(".feature-slider__arrow--prev").addEventListener("click", () => { if (sliding) { prev(); resume(); } });
+    holder.querySelector(".feature-slider__arrow--next").addEventListener("click", () => { if (sliding) { next(); resume(); } });
 
     let resizeTimer = null;
     window.addEventListener("resize", () => {

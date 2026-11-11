@@ -1245,6 +1245,37 @@ ul { list-style: none; }
   max-width: min(100%, 360px);
   max-height: min(78vh, 540px);
 }
+/* 左右の矢印ボタン（スライドしているときだけ出す） */
+.feature-slider__stage { position: relative; }
+.feature-slider__arrow {
+  position: absolute;
+  top: calc(50% - 6px); /* viewport の上下の余白（10px / 22px）の差をならす */
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--color-sub);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--color-sub-deep);
+  box-shadow: 0 4px 16px rgba(32, 49, 58, 0.14);
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+}
+.feature-slider__arrow--prev { left: -8px; }
+.feature-slider__arrow--next { right: -8px; }
+.feature-slider__arrow:hover {
+  background: var(--color-sub);
+  color: #fff;
+}
+.feature-slider__arrow:focus-visible {
+  outline: 2px solid var(--color-sub-deep);
+  outline-offset: 2px;
+}
+.feature-slider.is-static .feature-slider__arrow { display: none; }
 .feature-slider__dots {
   display: flex;
   justify-content: center;
@@ -1377,6 +1408,7 @@ ul { list-style: none; }
   .tour-banner__img { max-height: min(78vh, 480px); max-width: min(300px, 84vw); }
   .feature-slider { padding: 24px 16px 28px; }
   .feature-slider .tour-banner__img { max-width: min(100%, 300px); max-height: min(70vh, 460px); }
+  .feature-slider__arrow { width: 36px; height: 36px; }
 
   /* hero: スマホで横幅フルに両端まで収まるよう自然なサイズで表示 */
   .hero {
