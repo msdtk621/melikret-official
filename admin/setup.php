@@ -72,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             CREATE TABLE IF NOT EXISTS `melikret_feature` (
               `id`           INT AUTO_INCREMENT PRIMARY KEY,
               `enabled`      TINYINT(1)    NOT NULL DEFAULT 1,
+              `sort_order`   INT           NOT NULL DEFAULT 0,
               `image_url`    VARCHAR(1000) NOT NULL,
               `label`        VARCHAR(100)  DEFAULT NULL,
               `title`        VARCHAR(500)  NOT NULL,

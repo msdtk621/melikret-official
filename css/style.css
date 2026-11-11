@@ -1201,6 +1201,83 @@ ul { list-style: none; }
 }
 
 /* ============================================================
+   TOP売出項目スライダー（PC=横並び／入りきらない分は自動スライド）
+   --pv（1画面に並べる枚数）は main.js が画面幅から設定する
+   ============================================================ */
+.feature-slider {
+  --pv: 1;
+  --gap: 40px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 24px 36px;
+}
+.feature-slider__viewport {
+  overflow: hidden;
+  padding: 10px 0 22px; /* 画像の影・ホバー時の浮き上がりが切れないように */
+}
+.feature-slider__track {
+  position: relative;
+  display: flex;
+  gap: var(--gap);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  transition: transform 0.7s var(--ease);
+}
+.feature-slider.is-static { --gap: 64px; }
+.feature-slider.is-static .feature-slider__track { justify-content: center; }
+.feature-slider.is-static .feature-slider__slide { flex: 0 1 360px; }
+.feature-slider__slide {
+  flex: 0 0 calc((100% - var(--gap) * (var(--pv) - 1)) / var(--pv));
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+}
+.feature-slider .tour-banner {
+  width: 100%;
+  padding: 0;
+}
+/* 画像の縦横比が違ってもボタンの高さをそろえる */
+.feature-slider .tour-banner__btn { margin-top: auto; }
+.feature-slider .tour-banner__img {
+  width: auto;
+  height: auto;
+  max-width: min(100%, 360px);
+  max-height: min(78vh, 540px);
+}
+.feature-slider__dots {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+.feature-slider__dots:empty { display: none; }
+.feature-slider__dots button {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.feature-slider__dots button::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-sub);
+  transition: background 0.3s, transform 0.3s;
+}
+.feature-slider__dots button.is-active::before {
+  background: var(--color-sub);
+  transform: scale(1.2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .feature-slider__track { transition: none; }
+}
+
+/* ============================================================
    レスポンシブ
    ============================================================ */
 @media (max-width: 900px) {
@@ -1298,6 +1375,8 @@ ul { list-style: none; }
   /* ツアーバナー: スマホ */
   .tour-banner { padding: 28px 16px 36px; }
   .tour-banner__img { max-height: min(78vh, 480px); max-width: min(300px, 84vw); }
+  .feature-slider { padding: 24px 16px 28px; }
+  .feature-slider .tour-banner__img { max-width: min(100%, 300px); max-height: min(70vh, 460px); }
 
   /* hero: スマホで横幅フルに両端まで収まるよう自然なサイズで表示 */
   .hero {

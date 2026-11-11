@@ -5,21 +5,25 @@ header('Cache-Control: no-cache');
 
 require_once __DIR__ . '/../admin/_inc.php';
 
+/* TOP売出項目（表示ONのものを表示順の大きい順で配列として返す。0件なら []） */
 try {
-    $r = db()->query('SELECT * FROM melikret_feature ORDER BY id ASC LIMIT 1')->fetch();
+    $rows = db()->query(
+        'SELECT id, image_url, label, title, link_url, button_label
+           FROM melikret_feature
+          WHERE enabled = 1
+          ORDER BY sort_order DESC, id ASC'
+    )->fetchAll();
 
-    if (!$r || !(int)$r['enabled']) {
-        echo json_encode(null);
-        exit;
-    }
-
-    echo json_encode([
+    $result = array_map(fn($r) => [
+        'id'           => (int)$r['id'],
         'image_url'    => $r['image_url'],
         'label'        => $r['label'],
         'title'        => $r['title'],
         'link_url'     => $r['link_url'],
         'button_label' => $r['button_label'],
-    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    ], $rows);
+
+    echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 } catch (Throwable $e) {
     http_response_code(500);
     echo json_encode(['error' => 'db_error']);

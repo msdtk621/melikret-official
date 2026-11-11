@@ -129,29 +129,164 @@ document.addEventListener("DOMContentLoaded", () => {
     return modal;
   };
 
-  // ── TOP売出項目（ツアーバナー等） ────────────────────────
+  // ── TOP売出項目（複数バナー：PCは横並び／入りきらない分は自動スライド） ──
   (async () => {
     const holder = document.getElementById("featureBanner");
     if (!holder) return;
+    let items;
     try {
       const res = await fetch("api/feature.php");
       if (!res.ok) throw new Error(res.status);
-      const f = await res.json();
-      if (!f) { holder.remove(); return; }
-      const titleHtml = nl2brHtml(f.title || "");
-      holder.innerHTML = `
-        <a class="tour-banner" href="${escHtml(f.link_url)}" target="_blank" rel="noopener" aria-label="${escHtml(f.title || "")}">
-          <img class="tour-banner__img" src="${escHtml(f.image_url)}" alt="${escHtml(f.title || "")}" loading="eager" />
-          <div class="tour-banner__overlay" aria-hidden="true"></div>
-          <div class="tour-banner__inner">
-            ${f.label ? `<p class="tour-banner__label">${escHtml(f.label)}</p>` : ""}
-            <p class="tour-banner__title">${titleHtml}</p>
-            <span class="tour-banner__btn">${escHtml(f.button_label || "詳しく見る")} &rarr;</span>
-          </div>
-        </a>`;
+      items = await res.json();
     } catch {
       holder.remove();
+      return;
     }
+    if (!Array.isArray(items) || !items.length) { holder.remove(); return; }
+
+    const slideHtml = (f) => {
+      const alt = escHtml(String(f.title || "").replace(/\r?\n/g, " "));
+      return `
+        <li class="feature-slider__slide">
+          <a class="tour-banner" href="${escHtml(f.link_url)}" target="_blank" rel="noopener" aria-label="${alt}">
+            <img class="tour-banner__img" src="${escHtml(f.image_url)}" alt="${alt}" loading="eager" />
+            <span class="tour-banner__btn">${escHtml(f.button_label || "詳しく見る")} &rarr;</span>
+          </a>
+        </li>`;
+    };
+
+    holder.className = "feature-slider";
+    holder.setAttribute("aria-roledescription", "carousel");
+    holder.setAttribute("aria-label", "注目のお知らせ");
+    holder.innerHTML = `
+      <div class="feature-slider__viewport">
+        <ul class="feature-slider__track"></ul>
+      </div>
+      <div class="feature-slider__dots" role="tablist" aria-label="バナーの切り替え"></div>`;
+
+    const viewport = holder.querySelector(".feature-slider__viewport");
+    const track = holder.querySelector(".feature-slider__track");
+    const dotsBox = holder.querySelector(".feature-slider__dots");
+    const total = items.length;
+    const INTERVAL = 4500;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // 1画面に並べる枚数（画面幅で決める）
+    const perViewFor = () => {
+      const w = window.innerWidth;
+      const pv = w >= 1100 ? 3 : w >= 700 ? 2 : 1;
+      return Math.min(pv, total);
+    };
+
+    let perView = 0;
+    let index = 0;          // 先頭に表示中のスライド番号（クローン込みの位置）
+    let timer = null;
+    let sliding = false;    // 枚数がはみ出していて、スライド動作をするか
+
+    const slideEls = () => Array.from(track.children);
+
+    const moveTo = (i, animate = true) => {
+      index = i;
+      const els = slideEls();
+      const target = els[index];
+      const offset = target && sliding ? target.offsetLeft - els[0].offsetLeft : 0;
+      track.style.transition = animate ? "" : "none";
+      track.style.transform = `translateX(${-offset}px)`;
+      if (!animate) { void track.offsetWidth; track.style.transition = ""; }
+      const cur = index % total;
+      dotsBox.querySelectorAll("button").forEach((b, k) => {
+        b.classList.toggle("is-active", k === cur);
+        b.setAttribute("aria-selected", String(k === cur));
+      });
+    };
+
+    // 末尾のクローン位置にいたら、見た目を変えずに本物の先頭側へ戻す（無限ループ用）
+    // transitionend が来ない環境（裏に回った・省電力など）でも番号がずれないよう、進む前にも必ず呼ぶ
+    const normalize = () => { if (index >= total) moveTo(index % total, false); };
+    const next = () => { normalize(); moveTo(index + 1); };
+    const prev = () => {
+      normalize();
+      if (index > 0) { moveTo(index - 1); return; }
+      moveTo(total, false);   // 先頭のクローン（見た目は先頭と同じ）へ瞬間移動してから
+      moveTo(total - 1);      // 最後の1枚へスライド
+    };
+
+    const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
+    const start = () => {
+      stop();
+      if (!sliding || reduceMotion) return;
+      timer = setInterval(next, INTERVAL);
+    };
+
+    track.addEventListener("transitionend", (e) => {
+      if (e.target === track && sliding) normalize();
+    });
+
+    const build = () => {
+      const pv = perViewFor();
+      if (pv === perView && track.children.length) {
+        moveTo(index, false); // 幅だけ変わったときは位置の再計算のみ
+        return;
+      }
+      perView = pv;
+      sliding = total > perView;
+      holder.style.setProperty("--pv", perView);
+      holder.classList.toggle("is-static", !sliding);
+
+      // 入りきらないときだけ、先頭 perView 枚のクローンを末尾に足してループさせる
+      const list = sliding ? items.concat(items.slice(0, perView)) : items;
+      track.innerHTML = list.map(slideHtml).join("");
+      slideEls().forEach((el, k) => {
+        if (k >= total) {
+          el.setAttribute("aria-hidden", "true");
+          el.querySelector("a").setAttribute("tabindex", "-1");
+        }
+      });
+
+      dotsBox.innerHTML = sliding
+        ? items.map((_, k) => `<button type="button" role="tab" aria-label="${k + 1}枚目を表示"></button>`).join("")
+        : "";
+      dotsBox.querySelectorAll("button").forEach((b, k) => {
+        b.addEventListener("click", () => { normalize(); moveTo(k); start(); });
+      });
+
+      moveTo(0, false);
+      start();
+    };
+
+    // スワイプ（スマホ）
+    let startX = null, startY = null;
+    viewport.addEventListener("touchstart", (e) => {
+      if (!sliding) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      stop();
+    }, { passive: true });
+    viewport.addEventListener("touchend", (e) => {
+      if (!sliding || startX === null) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = e.changedTouches[0].clientY - startY;
+      startX = null;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+        if (dx < 0) next(); else prev();
+      }
+      start();
+    }, { passive: true });
+
+    // マウスを載せている間・キーボード操作中・タブが裏にある間は止める
+    holder.addEventListener("mouseenter", stop);
+    holder.addEventListener("mouseleave", start);
+    holder.addEventListener("focusin", stop);
+    holder.addEventListener("focusout", start);
+    document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
+
+    let resizeTimer = null;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(build, 150);
+    });
+
+    build();
   })();
 
   // ── ニュース（詳細モーダル対応） ──────────────────────────
