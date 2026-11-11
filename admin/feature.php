@@ -16,12 +16,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $label       = trim($_POST['label']        ?? '');
     $title       = trim($_POST['title']        ?? '');
     $linkUrl     = trim($_POST['link_url']     ?? '');
-    $buttonLabel = trim($_POST['button_label'] ?? '') ?: '詳しく見る';
+    $liveId      = (int)($_POST['live_id']     ?? 0) ?: null;
     $imageUrlTxt = trim($_POST['image_url']    ?? '');
 
+    // 押したときに開くもの：ライブを選んだらその詳細ポップアップ、選ばなければリンクURL
+    // ライブを選んだときは link_url に「#live-<ライブID>」を入れる（DBの列は増やさない）
+    $saveLink    = $liveId !== null ? '#live-' . $liveId : $linkUrl;
+    $targetError = '';
+    if ($liveId !== null) {
+        $chk = db()->prepare('SELECT COUNT(*) FROM melikret_live WHERE id=?');
+        $chk->execute([$liveId]);
+        if (!(int)$chk->fetchColumn()) $targetError = '選んだライブが見つかりません。もう一度選び直してください';
+    } elseif ($linkUrl === '') {
+        $targetError = 'リンクURLを入力するか、詳細を開くライブを選んでください';
+    }
+
     if ($act === 'add') {
-        if (!$title || !$linkUrl) {
-            $error = 'タイトル・リンクURLは必須です';
+        if (!$title) {
+            $error = 'タイトルは必須です';
+        } elseif ($targetError) {
+            $error = $targetError;
         } else {
             $uploaded = handleImageUpload($error, 'feature');
             if (!$error) {
@@ -30,17 +44,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = '画像（URLまたはアップロード）を指定してください';
                 } else {
                     db()->prepare(
-                        'INSERT INTO melikret_feature (enabled, sort_order, image_url, label, title, link_url, button_label)
-                         VALUES (?,?,?,?,?,?,?)'
-                    )->execute([$enabled, $sortOrder, $image, $label, $title, $linkUrl, $buttonLabel]);
+                        'INSERT INTO melikret_feature (enabled, sort_order, image_url, label, title, link_url)
+                         VALUES (?,?,?,?,?,?)'
+                    )->execute([$enabled, $sortOrder, $image, $label, $title, $saveLink]);
                     header('Location: feature.php?flash=added'); exit;
                 }
             }
         }
     } elseif ($act === 'edit') {
         $eid = (int)($_POST['id'] ?? 0);
-        if (!$title || !$linkUrl) {
-            $error = 'タイトル・リンクURLは必須です';
+        if (!$title) {
+            $error = 'タイトルは必須です';
+        } elseif ($targetError) {
+            $error = $targetError;
         } else {
             $cur = db()->prepare('SELECT image_url FROM melikret_feature WHERE id=?');
             $cur->execute([$eid]);
@@ -60,9 +76,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = '画像（URLまたはアップロード）を指定してください';
                 } else {
                     db()->prepare(
-                        'UPDATE melikret_feature SET enabled=?, sort_order=?, image_url=?, label=?, title=?, link_url=?, button_label=?
+                        'UPDATE melikret_feature SET enabled=?, sort_order=?, image_url=?, label=?, title=?, link_url=?
                          WHERE id=?'
-                    )->execute([$enabled, $sortOrder, $image, $label, $title, $linkUrl, $buttonLabel, $eid]);
+                    )->execute([$enabled, $sortOrder, $image, $label, $title, $saveLink, $eid]);
                     header('Location: feature.php?flash=updated'); exit;
                 }
             }
@@ -89,7 +105,12 @@ if ($action === 'add') {
     if ($error) echo '<div class="alert alert-ng">' . h($error) . '</div>';
     $nextOrder = (int)db()->query('SELECT GREATEST(COALESCE(MIN(sort_order),10)-10,0) FROM melikret_feature')->fetchColumn();
     $v = ['enabled' => 1, 'sort_order' => $nextOrder, 'image_url' => '', 'label' => '',
-          'title' => '', 'link_url' => '', 'button_label' => '詳しく見る'];
+          'title' => '', 'link_url' => '', 'live_id' => null];
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // 入力エラーで戻ったときは、入れた内容を残す
+        $v = ['enabled' => $enabled, 'sort_order' => $sortOrder, 'image_url' => $imageUrlTxt, 'label' => $label,
+              'title' => $title, 'link_url' => $linkUrl, 'live_id' => $liveId];
+    }
     renderFeatureForm('add', $v);
     echo '</div>';
     adminFoot(); exit;
@@ -131,13 +152,25 @@ $rows = db()->query('SELECT * FROM melikret_feature ORDER BY sort_order DESC, id
 if (!$rows) {
     echo '<p style="color:#8a9faa;font-size:.9rem;padding:20px 0">まだバナーがありません</p>';
 } else {
-    echo '<table><thead><tr><th></th><th>タイトル</th><th>表示</th><th>表示順</th><th></th></tr></thead><tbody>';
+    $liveNames = [];
+    foreach (db()->query('SELECT id, event_date, event_name FROM melikret_live')->fetchAll() as $lv) {
+        $liveNames[(int)$lv['id']] = date('Y.m.d', strtotime($lv['event_date'])) . ' ' . $lv['event_name'];
+    }
+    echo '<table><thead><tr><th></th><th>タイトル</th><th>押したとき</th><th>表示</th><th>表示順</th><th></th></tr></thead><tbody>';
     foreach ($rows as $r) {
         $img = (string)$r['image_url'];
         $src = (strpos($img, 'http') === 0) ? $img : '../' . $img;
         echo '<tr>';
         echo '<td><img src="' . h($src) . '" alt="" style="width:44px;height:60px;object-fit:cover;border-radius:4px;border:1px solid #d0e6ef"></td>';
         echo '<td>' . h(mb_strimwidth(str_replace(["\r\n", "\n"], ' ', $r['title']), 0, 40, '…')) . '</td>';
+        $rLive = featureLiveId((string)$r['link_url']);
+        if ($rLive !== null) {
+            $ln = $liveNames[$rLive] ?? null;
+            $target = $ln !== null ? 'LIVE詳細：' . mb_strimwidth($ln, 0, 34, '…') : 'LIVE詳細（ライブが見つかりません）';
+        } else {
+            $target = 'リンク：' . mb_strimwidth((string)$r['link_url'], 0, 34, '…');
+        }
+        echo '<td style="color:#5a6f78;font-size:.85rem">' . h($target) . '</td>';
         echo '<td>' . ((int)$r['enabled'] ? '<span class="badge badge-sale">表示中</span>' : '<span class="badge badge-ended">非表示</span>') . '</td>';
         echo '<td style="color:#5a6f78">' . h((string)$r['sort_order']) . '</td>';
         echo '<td class="actions"><a href="feature.php?action=edit&id=' . $r['id'] . '" class="btn btn-secondary btn-sm">編集</a></td>';
@@ -147,6 +180,11 @@ if (!$rows) {
 }
 echo '</div>';
 adminFoot();
+
+/* link_url が「#live-<ライブID>」ならそのIDを返す（バナーを押したらライブの詳細を開く設定） */
+function featureLiveId(string $link): ?int {
+    return preg_match('/^#live-(\d+)$/', $link, $m) ? (int)$m[1] : null;
+}
 
 /* ── フォーム描画ヘルパー ──────────────────────── */
 function renderFeatureForm(string $act, array $v, int $id = 0): void {
@@ -159,12 +197,10 @@ function renderFeatureForm(string $act, array $v, int $id = 0): void {
 
     echo '<div class="form-row">';
     echo '<div class="form-group"><label>表示順（大きいほど先頭）</label><input type="text" name="sort_order" value="' . h((string)($v['sort_order'] ?? 0)) . '"></div>';
-    echo '<div class="form-group"><label>ボタン文言</label><input type="text" name="button_label" value="' . h($v['button_label'] ?? '') . '" placeholder="例: チケット情報へ"></div>';
+    echo '<div class="form-group"><label>ラベル（管理用メモ）</label><input type="text" name="label" value="' . h($v['label'] ?? '') . '" placeholder="例: TOUR / ONE MAN"></div>';
     echo '</div>';
 
     echo '<div class="form-group"><label>タイトル <span style="color:#e74c3c">*</span></label><textarea name="title" required placeholder="例: メリクレット&#10;2nd Tour 2026">' . h($v['title'] ?? '') . '</textarea><p class="hint">画像の説明（読み上げ・画像が出ないときの代わりの文字）に使われます。</p></div>';
-
-    echo '<div class="form-group"><label>ラベル（管理用メモ）</label><input type="text" name="label" value="' . h($v['label'] ?? '') . '" placeholder="例: TOUR / ONE MAN"></div>';
 
     echo '<div class="form-group"><label>画像URL</label><input type="text" name="image_url" value="' . h($v['image_url'] ?? '') . '" placeholder="https://..."><p class="hint">下からアップロードした場合はそちらが優先されます。縦長のフライヤー画像を想定しています。</p></div>';
     $img = trim((string)($v['image_url'] ?? ''));
@@ -174,7 +210,23 @@ function renderFeatureForm(string $act, array $v, int $id = 0): void {
     }
     echo '<div class="form-group"><label>画像アップロード</label><input type="file" name="image" accept="image/jpeg,image/png,image/gif,image/webp" style="border:none;padding:8px 0"><p class="hint">JPEG / PNG / GIF / WebP・6MBまで。</p></div>';
 
-    echo '<div class="form-group"><label>リンクURL <span style="color:#e74c3c">*</span></label><input type="url" name="link_url" value="' . h($v['link_url'] ?? '') . '" required placeholder="https://..."></div>';
+    // 押したときに開くもの（ライブの詳細ポップアップ／リンクURL）
+    $linkVal = (string)($v['link_url'] ?? '');
+    $curLive = (int)($v['live_id'] ?? featureLiveId($linkVal) ?? 0);
+    if (featureLiveId($linkVal) !== null) $linkVal = ''; // 「#live-○」は入力欄に出さない
+    $lives = db()->query('SELECT id, event_date, event_name, venue FROM melikret_live ORDER BY event_date DESC, id DESC')->fetchAll();
+    echo '<div class="form-group"><label>押したときに開くもの</label><select name="live_id" id="featureLiveSelect">';
+    echo '<option value="">リンクURLを開く（別タブ）</option>';
+    foreach ($lives as $lv) {
+        $lid = (int)$lv['id'];
+        $text = 'ライブの詳細：' . date('Y.m.d', strtotime($lv['event_date'])) . '　' . $lv['event_name'] . '（' . $lv['venue'] . '）';
+        echo '<option value="' . $lid . '"' . ($lid === $curLive ? ' selected' : '') . '>' . h(mb_strimwidth($text, 0, 90, '…')) . '</option>';
+    }
+    echo '</select><p class="hint">ライブを選ぶと、LIVE欄の「詳細 →」と同じポップアップが開きます。このときリンクURLは使いません。</p></div>';
+
+    echo '<div class="form-group" id="featureLinkGroup"><label>リンクURL</label><input type="url" name="link_url" value="' . h($linkVal) . '" placeholder="https://..."><p class="hint">「リンクURLを開く」のときに必要です。</p></div>';
+    echo '<script>(function(){var s=document.getElementById("featureLiveSelect"),g=document.getElementById("featureLinkGroup");'
+       . 'function u(){g.style.opacity=s.value?".45":"";}s.addEventListener("change",u);u();})();</script>';
 
     $label = $act === 'add' ? '追加する' : '保存する';
     echo '<button type="submit" class="btn btn-primary">' . $label . '</button>';

@@ -1233,12 +1233,12 @@ ul { list-style: none; }
   display: flex;
   justify-content: center;
 }
+/* 画像だけのバナー。縦横比が違うフライヤーが並んでも上下中央でそろえる */
 .feature-slider .tour-banner {
   width: 100%;
   padding: 0;
+  justify-content: center;
 }
-/* 画像の縦横比が違ってもボタンの高さをそろえる */
-.feature-slider .tour-banner__btn { margin-top: auto; }
 .feature-slider .tour-banner__img {
   width: auto;
   height: auto;

@@ -129,6 +129,11 @@ document.addEventListener("DOMContentLoaded", () => {
     return modal;
   };
 
+  /* LIVE の詳細ポップアップを、ライブ一覧の外（TOP売出項目のバナー）からも開けるようにする。
+     ライブ一覧の読み込みが終わると { byId, openModal } で解決する（失敗時は null） */
+  let resolveLiveDetail;
+  const liveDetailReady = new Promise((r) => { resolveLiveDetail = r; });
+
   // ── TOP売出項目（複数バナー：PCは横並び／入りきらない分は自動スライド） ──
   (async () => {
     const holder = document.getElementById("featureBanner");
@@ -144,13 +149,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (!Array.isArray(items) || !items.length) { holder.remove(); return; }
 
+    // 画像だけのバナー。live_id があればそのライブの詳細ポップアップ、無ければリンクURLを別タブで開く
     const slideHtml = (f) => {
       const alt = escHtml(String(f.title || "").replace(/\r?\n/g, " "));
+      const attrs = f.live_id
+        ? `href="#live" data-live="${escHtml(f.live_id)}" aria-haspopup="dialog"`
+        : `href="${escHtml(f.link_url)}" target="_blank" rel="noopener"`;
       return `
         <li class="feature-slider__slide">
-          <a class="tour-banner" href="${escHtml(f.link_url)}" target="_blank" rel="noopener" aria-label="${alt}">
+          <a class="tour-banner" ${attrs} aria-label="${alt}">
             <img class="tour-banner__img" src="${escHtml(f.image_url)}" alt="${alt}" loading="eager" />
-            <span class="tour-banner__btn">${escHtml(f.button_label || "詳しく見る")} &rarr;</span>
           </a>
         </li>`;
     };
@@ -220,6 +228,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
     track.addEventListener("transitionend", (e) => {
       if (e.target === track && sliding) normalize();
+    });
+
+    // ライブの詳細を開くバナー。一覧の読み込み前に押されても、読み込みを待ってから開く
+    track.addEventListener("click", async (e) => {
+      const a = e.target.closest("a[data-live]");
+      if (!a) return;
+      e.preventDefault();
+      stop();
+      const live = await liveDetailReady;
+      const item = live && live.byId[a.getAttribute("data-live")];
+      if (item) {
+        live.openModal(item);
+        // ポップアップを閉じたら自動スライドを再開する
+        const modal = document.getElementById("liveModal");
+        if (modal) {
+          const mo = new MutationObserver(() => {
+            if (!modal.classList.contains("is-open")) { mo.disconnect(); start(); }
+          });
+          mo.observe(modal, { attributes: true, attributeFilter: ["class"] });
+        }
+      } else {
+        // ライブが消されていた・読み込めなかったときは LIVE 欄へ移動する
+        const sec = document.getElementById("live");
+        if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     });
 
     const build = () => {
@@ -448,6 +481,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const items = await res.json();
       if (!items.length) {
         list.innerHTML = '<li class="news__loading">ライブ情報はありません。</li>';
+        resolveLiveDetail(null);
         return;
       }
 
@@ -565,6 +599,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.key === "Escape" && modal.classList.contains("is-open")) closeModal();
       });
 
+      // TOP売出項目のバナーからも同じポップアップを開けるようにする
+      resolveLiveDetail({ byId, openModal });
+
       // ページネーション（10件以上のときのみ）
       if (pagination && liveItems.length > 10) {
         const PER_PAGE = 10;
@@ -592,6 +629,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch {
       list.innerHTML = '<li class="news__loading">読込に失敗しました。</li>';
+      resolveLiveDetail(null);
     }
   })();
 
