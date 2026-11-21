@@ -46,11 +46,11 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet" />
 
   <!-- ローディング画面がCSS読み込み前から画面を覆うための最小スタイル -->
-  <style>.loader{position:fixed;inset:0;z-index:1000;background:#fff;display:flex;align-items:center;justify-content:center}</style>
-  <link rel="stylesheet" href="css/style.css?v=20261111d" />
+  <style>.loader{position:fixed;inset:0;z-index:1000;background:#fff}</style>
+  <link rel="stylesheet" href="css/style.css?v=20261121a" />
 
   <!-- 構造化データ（検索結果でのバンド情報表示用・schema.org MusicGroup） -->
   <script type="application/ld+json">
@@ -91,20 +91,23 @@
   </script>
 </head>
 
-<body>
+<body class="is-loading">
 
-  <!-- ローディング画面（メリクレットのロゴ＋水の波紋。読み込み後にフェードアウト） -->
+  <!-- ローディング：雨粒が落ちて波紋が広がり、その輪からサイトが開く -->
   <div class="loader" id="loader" aria-hidden="true">
-    <div class="loader__stage">
-      <img class="loader__logo" src="images/logo_trim.png" alt="メリクレット" />
-      <span class="loader__ripple"></span>
-      <span class="loader__ripple"></span>
-      <span class="loader__ripple"></span>
-    </div>
+    <span class="loader__drop"></span>
+    <span class="loader__ring"></span>
+    <span class="loader__ring"></span>
+    <span class="loader__ring"></span>
+    <img class="loader__logo" src="images/logo_trim.png" alt="" />
   </div>
 
-  <!-- 水たまりの波紋エフェクト（JSで波紋を生成。装飾） -->
-  <div class="ripple-layer" id="ripple" aria-hidden="true"></div>
+  <!-- 画面全体の水面（波紋）。装飾 -->
+  <canvas class="ambient" id="ambient" aria-hidden="true"></canvas>
+  <!-- カーソルを追う水の輪（マウス操作のPCのみ） -->
+  <div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__label" id="cursorLabel"></span></div>
+  <!-- 読み進み具合 -->
+  <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
 
   <!-- ============================== ヘッダー / ナビ ============================== -->
   <header class="header" id="header">
@@ -146,170 +149,200 @@
     </button>
   </header>
 
-  <!-- ============================== コンセプト（先頭・白地） ============================== -->
-  <section class="concept" id="top">
-    <img class="concept__logo" src="images/logo_text_trim.png" alt="メリクレット" />
-    <p class="concept__sub">melikret &mdash; pop rock from Sapporo</p>
-  </section>
-
-  <!-- ============================== ヒーロー（メインアー写のみ／文字は載せない） ============================== -->
-  <section class="hero" id="hero">
+  <!-- ============================== ヒーロー（アー写は水面として揺れる。写真に文字は載せない） ============================== -->
+  <section class="hero" id="top">
     <h1 class="sr-only">メリクレット | melikret OFFICIAL WEBSITE</h1>
-    <!-- ▼ メインビジュアル。差し替えるときは images/hero.jpg を入れ替え ▼ -->
-    <img class="hero__img" src="images/hero.jpg" alt="メリクレット メンバー" fetchpriority="high" />
-    <div class="hero__overlay" aria-hidden="true"></div>
 
-    <a href="#live" class="hero__scroll" aria-label="下へスクロール">
-      <span class="hero__scroll-drop" aria-hidden="true"></span>
-      <span class="hero__scroll-pool" aria-hidden="true"></span>
-    </a>
+    <div class="hero__side">
+      <img class="hero__logo" src="images/logo_text_trim.png" alt="メリクレット" />
+      <p class="hero__sub"><span class="split" data-split>melikret</span><span class="hero__sub-line">pop rock from Sapporo</span></p>
+      <a href="#live" class="hero__scroll" aria-label="下へスクロール">
+        <span class="hero__scroll-text">Scroll</span>
+        <span class="hero__scroll-line" aria-hidden="true"></span>
+      </a>
+    </div>
+
+    <!-- ▼ メインビジュアル。差し替えるときは images/hero.jpg を入れ替え ▼ -->
+    <div class="hero__frame" id="heroFrame">
+      <img class="hero__img" id="heroImg" src="images/hero.jpg" alt="メリクレット メンバー" fetchpriority="high" />
+      <canvas class="hero__canvas" id="heroCanvas" aria-hidden="true"></canvas>
+    </div>
+
+    <p class="hero__vertical" aria-hidden="true">melikret official website &mdash; since 2019</p>
   </section>
+
+  <!-- 流れる文字 -->
+  <div class="marquee marquee--hero" data-marquee="-1" aria-hidden="true">
+    <div class="marquee__track"><span>melikret</span><span class="is-fill">pop rock from Sapporo</span><span>melikret</span><span class="is-fill">pop rock from Sapporo</span></div>
+  </div>
 
   <main>
 
     <!-- ============================== TOP売出項目（CMS管理・api/feature.php） ============================== -->
-    <div id="featureBanner"></div>
+    <div class="pickup" id="pickup">
+      <p class="pickup__label" aria-hidden="true">Pick up</p>
+      <div id="featureBanner"></div>
+    </div>
 
     <!-- ============================== LIVE ============================== -->
-    <section class="section section--tint" id="live">
-      <div class="section__head">
-        <h2 class="section__title">LIVE</h2>
-        <p class="section__title-jp">ライブ情報</p>
+    <section class="section section--water" id="live" data-wave>
+      <div class="section__inner">
+        <div class="sec-head">
+          <p class="sec-head__no" aria-hidden="true">01</p>
+          <h2 class="sec-head__title"><span class="split" data-split>Live</span></h2>
+          <p class="sec-head__jp">ライブ情報</p>
+        </div>
+        <ul class="live" id="liveList">
+          <li class="news__loading">読込中…</li>
+        </ul>
+        <div class="live__pagination" id="livePagination"></div>
       </div>
-
-      <ul class="live" id="liveList">
-        <li class="news__loading">読込中…</li>
-      </ul>
-      <div class="live__pagination" id="livePagination"></div>
-      <!-- ▲▲ ライブここまで ▲▲ -->
     </section>
 
     <!-- ============================== NEWS ============================== -->
     <section class="section" id="news">
-      <div class="section__head">
-        <h2 class="section__title">NEWS</h2>
-        <p class="section__title-jp">最新情報</p>
+      <div class="section__inner">
+        <div class="sec-head">
+          <p class="sec-head__no" aria-hidden="true">02</p>
+          <h2 class="sec-head__title"><span class="split" data-split>News</span></h2>
+          <p class="sec-head__jp">最新情報</p>
+        </div>
+        <ul class="news" id="newsList">
+          <li class="news__loading">読込中…</li>
+        </ul>
       </div>
-
-      <ul class="news" id="newsList">
-        <li class="news__loading">読込中…</li>
-      </ul>
     </section>
 
-    <!-- ============================== 世界観イラスト（キービジュアル） ============================== -->
-    <section class="keyvisual" aria-label="メリクレットの世界観">
-      <img class="keyvisual__img" src="images/illust.jpg" alt="メリクレットの世界観イラスト（喫茶 COFFEE melikret）" loading="lazy" />
-      <div class="keyvisual__veil" aria-hidden="true"></div>
-      <p class="keyvisual__copy">
-        <span class="keyvisual__copy-jp">涙伝う日常に、奏でる藍の逆さ傘を。</span>
-      </p>
+    <!-- ============================== 世界観イラスト（スクロールで輪が開いていく） ============================== -->
+    <section class="scene" id="scene" aria-label="メリクレットの世界観" data-wave>
+      <div class="scene__pin">
+        <p class="scene__label" aria-hidden="true">the world of melikret</p>
+        <div class="scene__window">
+          <span class="scene__ring" aria-hidden="true"></span>
+          <span class="scene__ring" aria-hidden="true"></span>
+          <div class="scene__clip">
+            <img class="scene__img" src="images/illust.jpg" alt="メリクレットの世界観イラスト（喫茶 COFFEE melikret）" />
+            <div class="scene__veil" aria-hidden="true"></div>
+          </div>
+        </div>
+        <p class="scene__copy"><span class="scene__copy-jp" data-chars>涙伝う日常に、奏でる藍の逆さ傘を。</span></p>
+      </div>
     </section>
 
     <!-- ============================== PROFILE ============================== -->
     <section class="section" id="profile">
-      <div class="section__head">
-        <h2 class="section__title">PROFILE</h2>
-        <p class="section__title-jp">プロフィール</p>
-      </div>
-
-      <div class="profile">
-        <div class="profile__photo">
-          <!-- ▼ サブアー写。差し替えは images/profile.jpg を入れ替え ▼ -->
-          <img src="images/profile.jpg" alt="メリクレット プロフィール写真" loading="lazy" />
+      <div class="section__inner">
+        <div class="sec-head">
+          <p class="sec-head__no" aria-hidden="true">03</p>
+          <h2 class="sec-head__title"><span class="split" data-split>Profile</span></h2>
+          <p class="sec-head__jp">プロフィール</p>
         </div>
-        <div class="profile__text">
-          <p class="profile__lead">涙伝う日常に、奏でる藍の逆さ傘を。</p>
-          <p>
-            メリクレット（melikret）は、北海道・札幌を拠点に活動する男女混合4ピース ポップロックバンド。
-            2019年9月、大学の軽音楽サークル内で結成。
-          </p>
-          <p>
-            厭世的でありながら情景が立ちのぼる詩、ジャンルの垣根を越えた幅広い楽曲群、そして力強くも儚いボーカル。
-            それらが溶け合い、独特の世界観を描き出す。
-          </p>
-          <p>
-            2026年2月に1st mini album「1ヨクトの眠り姫」をリリース。ライブ活動やSNSでの発信も話題を呼び、
-            全国各地のフェス・ツアーへと活動の場を広げている。
-          </p>
+        <div class="profile">
+          <div class="profile__photo rv-clip">
+            <!-- ▼ サブアー写。差し替えは images/profile.jpg を入れ替え ▼ -->
+            <img src="images/profile.jpg" alt="メリクレット プロフィール写真" loading="lazy" data-parallax="0.08" />
+          </div>
+          <div class="profile__text">
+            <p class="profile__lead rv">涙伝う日常に、<br class="pc-only" />奏でる藍の逆さ傘を。</p>
+            <p class="rv">
+              メリクレット（melikret）は、北海道・札幌を拠点に活動する男女混合4ピース ポップロックバンド。
+              2019年9月、大学の軽音楽サークル内で結成。
+            </p>
+            <p class="rv">
+              厭世的でありながら情景が立ちのぼる詩、ジャンルの垣根を越えた幅広い楽曲群、そして力強くも儚いボーカル。
+              それらが溶け合い、独特の世界観を描き出す。
+            </p>
+            <p class="rv">
+              2026年2月に1st mini album「1ヨクトの眠り姫」をリリース。ライブ活動やSNSでの発信も話題を呼び、
+              全国各地のフェス・ツアーへと活動の場を広げている。
+            </p>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- ============================== MEMBER ============================== -->
-    <section class="section section--tint" id="member">
-      <div class="section__head">
-        <h2 class="section__title">MEMBER</h2>
-        <p class="section__title-jp">メンバー</p>
+    <section class="section section--water" id="member" data-wave>
+      <div class="section__inner">
+        <div class="sec-head">
+          <p class="sec-head__no" aria-hidden="true">04</p>
+          <h2 class="sec-head__title"><span class="split" data-split>Member</span></h2>
+          <p class="sec-head__jp">メンバー</p>
+        </div>
+        <!-- ▼▼ メンバー写真は images/member-*.jpg を差し替え ▼▼ -->
+        <ul class="member">
+          <li class="member__item rv">
+            <div class="member__photo"><img src="images/member-tipe.jpg" alt="ちぺ" loading="lazy" /></div>
+            <p class="member__no" aria-hidden="true">01</p>
+            <p class="member__name">ちぺ</p>
+            <p class="member__part">Vocal &amp; Guitar</p>
+          </li>
+          <li class="member__item rv">
+            <div class="member__photo"><img src="images/member-renia.jpg" alt="レニア" loading="lazy" /></div>
+            <p class="member__no" aria-hidden="true">02</p>
+            <p class="member__name">レニア</p>
+            <p class="member__part">Guitar</p>
+          </li>
+          <li class="member__item rv">
+            <div class="member__photo"><img src="images/member-toki.jpg" alt="斗輝" loading="lazy" /></div>
+            <p class="member__no" aria-hidden="true">03</p>
+            <p class="member__name">斗輝</p>
+            <p class="member__part">Bass</p>
+          </li>
+        </ul>
+        <p class="member__hint" aria-hidden="true">swipe &rarr;</p>
       </div>
-
-      <!-- ▼▼ メンバー写真は images/member-*.jpg を差し替え ▼▼ -->
-      <ul class="member">
-        <li class="member__item">
-          <div class="member__photo"><img src="images/member-tipe.jpg" alt="ちぺ" loading="lazy" /></div>
-          <p class="member__name">ちぺ</p>
-          <p class="member__part">Vocal &amp; Guitar</p>
-        </li>
-        <li class="member__item">
-          <div class="member__photo"><img src="images/member-renia.jpg" alt="レニア" loading="lazy" /></div>
-          <p class="member__name">レニア</p>
-          <p class="member__part">Guitar</p>
-        </li>
-        <li class="member__item">
-          <div class="member__photo"><img src="images/member-toki.jpg" alt="斗輝" loading="lazy" /></div>
-          <p class="member__name">斗輝</p>
-          <p class="member__part">Bass</p>
-        </li>
-      </ul>
-      <!-- ▲▲ メンバーここまで ▲▲ -->
     </section>
 
     <!-- ============================== DISCOGRAPHY ============================== -->
     <section class="section" id="discography">
-      <div class="section__head">
-        <h2 class="section__title">DISCOGRAPHY</h2>
-        <p class="section__title-jp">作品</p>
+      <div class="section__inner">
+        <div class="sec-head">
+          <p class="sec-head__no" aria-hidden="true">05</p>
+          <h2 class="sec-head__title"><span class="split" data-split>Discography</span></h2>
+          <p class="sec-head__jp">作品</p>
+        </div>
+        <!-- ▼▼ CMS管理（api/discography.php）。ジャケット画像・リンクは管理画面から編集 ▼▼ -->
+        <ul class="disco" id="discoList">
+          <li class="news__loading">読込中…</li>
+        </ul>
+        <div class="disco__pagination" id="discoPagination"></div>
+        <div class="disco__more">
+          <a class="btn-pill" href="https://melikret.lnk.to/melikret" target="_blank" rel="noopener"><span>すべての作品を配信で聴く</span><i aria-hidden="true">&rarr;</i></a>
+        </div>
       </div>
-
-      <!-- ▼▼ CMS管理（api/discography.php）。ジャケット画像・リンクは管理画面から編集 ▼▼ -->
-      <ul class="disco" id="discoList">
-        <li class="news__loading">読込中…</li>
-      </ul>
-      <div class="disco__pagination" id="discoPagination"></div>
-      <div class="disco__more">
-        <a class="btn-pill" href="https://melikret.lnk.to/melikret" target="_blank" rel="noopener">すべての作品を配信で聴く &rarr;</a>
-      </div>
-      <!-- ▲▲ ディスコグラフィーここまで ▲▲ -->
     </section>
 
     <!-- ============================== MOVIE ============================== -->
-    <section class="section section--tint" id="movie">
-      <div class="section__head">
-        <h2 class="section__title">MOVIE</h2>
-        <p class="section__title-jp">映像</p>
+    <section class="section section--water" id="movie" data-wave>
+      <div class="section__inner">
+        <div class="sec-head">
+          <p class="sec-head__no" aria-hidden="true">06</p>
+          <h2 class="sec-head__title"><span class="split" data-split>Movie</span></h2>
+          <p class="sec-head__jp">映像</p>
+        </div>
+        <!-- ▼▼ CMS管理（api/movie.php） ▼▼ -->
+        <div class="movie" id="movieList"></div>
+        <div class="movie__more">
+          <a class="btn-pill" href="https://www.youtube.com/@melikret" target="_blank" rel="noopener"><span>YouTubeチャンネルを見る</span><i aria-hidden="true">&rarr;</i></a>
+        </div>
       </div>
-
-      <!-- ▼▼ CMS管理（api/movie.php） ▼▼ -->
-      <div class="movie" id="movieList"></div>
-      <div class="movie__more">
-        <a class="btn-pill" href="https://www.youtube.com/@melikret" target="_blank" rel="noopener">YouTubeチャンネルを見る &rarr;</a>
-      </div>
-      <!-- ▲▲ 映像ここまで ▲▲ -->
     </section>
 
     <!-- ============================== CONTACT ============================== -->
     <section class="section" id="contact">
-      <div class="section__head">
-        <h2 class="section__title">CONTACT</h2>
-        <p class="section__title-jp">お問い合わせ</p>
-      </div>
-
-      <div class="contact">
-        <p class="contact__lead">
-          ライブ出演のご依頼・取材・各種お問い合わせは、下記よりご連絡ください。
-        </p>
-        <a class="contact__mail" href="mailto:melikret.official@gmail.com">melikret.official@gmail.com</a>
-
-        <ul class="contact__sns">
+      <div class="section__inner">
+        <div class="sec-head">
+          <p class="sec-head__no" aria-hidden="true">07</p>
+          <h2 class="sec-head__title"><span class="split" data-split>Contact</span></h2>
+          <p class="sec-head__jp">お問い合わせ</p>
+        </div>
+        <div class="contact">
+          <p class="contact__lead rv">
+            ライブ出演のご依頼・取材・各種お問い合わせは、下記よりご連絡ください。
+          </p>
+          <a class="contact__mail rv" href="mailto:melikret.official@gmail.com">melikret.official@gmail.com</a>
+          <ul class="contact__sns rv">
           <li><a href="https://x.com/melikret" target="_blank" rel="noopener" aria-label="X (Twitter) @melikret">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             <span>X</span>
@@ -331,13 +364,17 @@
             <span>LINKS</span>
           </a></li>
         </ul>
+        </div>
       </div>
     </section>
 
   </main>
 
   <!-- ============================== フッター ============================== -->
-  <footer class="footer">
+  <footer class="footer" data-wave>
+    <div class="marquee marquee--footer" data-marquee="1" aria-hidden="true">
+      <div class="marquee__track"><span>melikret</span><span class="is-fill">涙伝う日常に、奏でる藍の逆さ傘を。</span><span>melikret</span><span class="is-fill">涙伝う日常に、奏でる藍の逆さ傘を。</span></div>
+    </div>
     <a href="#top" class="footer__logo" aria-label="メリクレット">
       <img src="images/logo_trim.png" alt="メリクレット" class="footer__logo-img" />
     </a>
@@ -349,6 +386,7 @@
     <img src="images/メリーちゃん.png" alt="" aria-hidden="true" />
   </button>
 
-  <script src="js/main.js?v=20261111e"></script>
+  <script src="js/water.js?v=20261121a"></script>
+  <script src="js/main.js?v=20261121a"></script>
 </body>
 </html>
