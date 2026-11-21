@@ -200,7 +200,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (scene) {
         const r = scene.getBoundingClientRect();
         const span = r.height - vh;
-        const target = span > 0 ? clamp(-r.top / span, 0, 1) : 1;
+        // PC：画面に固定している間の進み具合。SP：固定しないので、下から入ってきて画面の上1/4に届くまで
+        const target = span > 0
+          ? clamp(-r.top / span, 0, 1)
+          : clamp((vh - r.top) / (vh * 0.75), 0, 1);
         if (Math.abs(target - sceneP) > 0.0004) {
           sceneP += (target - sceneP) * 0.14;
           scene.style.setProperty("--p", sceneP.toFixed(4));

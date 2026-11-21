@@ -903,7 +903,7 @@ button { font: inherit; color: inherit; }
 .scene {
   --p: 0;
   position: relative;
-  height: 230vh;
+  height: 165vh;
   background: var(--indigo-deep);
   color: #fff;
 }
@@ -933,7 +933,7 @@ button { font: inherit; color: inherit; }
 .scene__clip {
   position: absolute;
   inset: 0;
-  clip-path: circle(calc(15vmin + var(--p) * 1.45 * 62vmax) at 50% 50%);
+  clip-path: circle(calc(24vmin + var(--p) * 1.45 * 62vmax) at 50% 50%);
 }
 .scene__img {
   width: 100%; height: 100%;
@@ -951,15 +951,15 @@ button { font: inherit; color: inherit; }
 .scene__ring {
   position: absolute;
   left: 50%; top: 50%;
-  width: 30vmin; height: 30vmin;
-  margin: -15vmin 0 0 -15vmin;
+  width: 48vmin; height: 48vmin;
+  margin: -24vmin 0 0 -24vmin;
   border: 1px solid rgba(135, 206, 235, 0.55);
   border-radius: 50%;
-  transform: scale(calc(1.25 + var(--p) * 9));
+  transform: scale(calc(1.12 + var(--p) * 7));
   opacity: clamp(0, calc(0.9 - var(--p) * 3), 1);
 }
 .scene__ring:nth-child(2) {
-  transform: scale(calc(1.6 + var(--p) * 14));
+  transform: scale(calc(1.3 + var(--p) * 11));
   border-color: rgba(135, 206, 235, 0.3);
 }
 .scene__copy {
@@ -1557,26 +1557,25 @@ button { font: inherit; color: inherit; }
   .gnav__sns { display: flex; gap: 16px; --n: 11; }
   .gnav__sns a { width: 42px; height: 42px; }
 
-  /* ヒーロー：左の細い帯に縦の英字、右にアー写 */
-  .hero { display: block; min-height: 0; padding-top: var(--header-h); }
+  /* ヒーロー：左の細い帯に縦の英字、右にアー写。3人とも入るよう、枠は写真に近い横長（6:5）にする */
+  .hero { --hero-gutter: 46px; display: block; min-height: 0; padding-top: var(--header-h); }
   .hero__frame {
-    margin: 0 0 0 46px;
-    height: 60vh;
-    height: 60svh;
-    min-height: 340px;
-    border-radius: 0 0 0 clamp(64px, 20vw, 120px);
+    margin: 0 0 0 var(--hero-gutter);
+    aspect-ratio: 6 / 5;
+    border-radius: 0 0 0 clamp(56px, 16vw, 120px);
   }
+  .hero__img, .hero__canvas { object-position: center 30%; }
   .hero__vertical {
     left: 0;
     top: auto;
     bottom: 0;
-    width: 46px;
-    height: 60svh;
-    min-height: 340px;
+    width: var(--hero-gutter);
+    height: calc((100vw - var(--hero-gutter)) / 1.2);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.76rem;
+    white-space: nowrap;
   }
   .hero__side { padding: 30px 20px 26px; gap: 10px; }
   .hero__logo { width: min(64vw, 260px); }
@@ -1604,21 +1603,31 @@ button { font: inherit; color: inherit; }
   .disco__item:nth-child(n) { --d: 0ms; }
   .disco__item:nth-child(2n) { --d: 120ms; }
 
-  /* 世界観：イラストは左右を切らず、横幅いっぱいの16:9で見せる */
-  .scene { height: 175vh; }
-  .scene__window {
-    inset: auto 0 auto 0;
-    top: 50%;
-    height: 56.25vw;
-    transform: translateY(-58%);
+  /* 世界観：イラストは左右を切らず、横幅いっぱいの16:9で見せる。
+     画面に固定せず、イラストの高さぶんだけの帯にして、通り過ぎる間に輪が開く（--p は main.js） */
+  .scene { height: auto; }
+  .scene__pin {
+    position: relative;
+    height: auto;
+    display: block;
+    place-items: normal; /* 新しい Chrome は block の子にも中央寄せが効いて幅が 0 になるので戻す */
+    padding: 44px 0 48px;
   }
+  .scene__label {
+    position: static;
+    transform: none;
+    text-align: center;
+    margin-bottom: 22px;
+    font-size: 0.92rem;
+    opacity: 0.8;
+  }
+  .scene__window { position: relative; inset: auto; height: 56.25vw; }
   .scene__clip { clip-path: circle(calc(11vw + var(--p) * 1.5 * 50vw) at 50% 50%); }
   .scene__img { object-position: center; transform: scale(calc(1.16 - var(--p) * 0.16)); }
   .scene__veil { display: none; }
   .scene__ring { width: 22vw; height: 22vw; margin: -11vw 0 0 -11vw; }
-  .scene__copy { bottom: auto; top: calc(50% + 56.25vw * 0.42 + 34px); }
+  .scene__copy { position: static; margin-top: 26px; }
   .scene__copy-jp { font-size: clamp(0.82rem, 3.5vw, 1.25rem); letter-spacing: 0.14em; text-shadow: none; }
-  .scene__label { top: calc(50% - 56.25vw * 0.58 - 64px); font-size: 0.92rem; }
 }
 
 /* ============================================================
@@ -1626,6 +1635,8 @@ button { font: inherit; color: inherit; }
    ============================================================ */
 @media (max-width: 560px) {
   .section { padding: 84px 20px; }
+  .hero { --hero-gutter: 30px; }
+  .hero__vertical { font-size: 0.66rem; letter-spacing: 0.2em; }
 
   /* 先頭へ戻る：スマホはメリーを100px・画面端まで右寄せ */
   .to-top { right: -8px; }
