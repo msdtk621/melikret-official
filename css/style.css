@@ -746,7 +746,7 @@ button { font: inherit; color: inherit; }
 /* ============================================================
    LIVE
    ============================================================ */
-.live { border-top: 1px solid var(--color-line); }
+.live { border-top: 0; } /* 見出しの下の線と二重にならないよう、一覧の上の線は引かない */
 .live__item {
   position: relative;
   display: grid;
@@ -847,7 +847,7 @@ button { font: inherit; color: inherit; }
 /* ============================================================
    NEWS
    ============================================================ */
-.news { border-top: 1px solid var(--color-line); }
+.news { border-top: 0; }
 .news__item {
   position: relative;
   display: grid;
